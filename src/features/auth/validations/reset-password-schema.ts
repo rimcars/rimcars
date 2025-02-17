@@ -1,20 +1,17 @@
 import { z } from "zod";
 
-export const createResetPasswordSchema = (t: (key: string) => string) =>
-  z
+export const ResetPasswordSchema = z
     .object({
       password: z.string().min(6, {
-        message: t("validation.passwordMin"), // Consistent translation key
+        message: "Password must be at least 6 characters long",
       }),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: t("validation.passwordMatch"), // Consistent translation key
+      message: "Passwords must match",
       path: ["confirmPassword"],
     });
 
-export type ResetPasswordValues = z.infer<
-  ReturnType<typeof createResetPasswordSchema>
->; 
+export type ResetPasswordValues = z.infer<typeof ResetPasswordSchema>; 
 
 

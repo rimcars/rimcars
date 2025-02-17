@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/features/auth/components/shared/password-input";
 import { AuthMessage } from "@/features/auth/components/shared/auth-message";
+import { GoogleSignInButton } from "@/features/auth/components/google-sign-in-button";
 import { login } from "../actions/login";
 import {
   LoginFormValues,
@@ -213,6 +214,7 @@ export function LoginForm() {
               </span>
             </div>
           </div>
+          <GoogleSignInButton  />
         </>
 
       <div className="text-center text-sm">

@@ -30,6 +30,9 @@ export async function signupUser(values: RegisterFormValues) {
       email: values.email,
       password: values.password,
       options: {
+        data: {
+          full_name: values.name,
+        },
         emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/${process.env.NEXT_PUBLIC_VERIFY_EMAIL_REDIRECT}?type=email_verification`
       }
     });

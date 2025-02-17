@@ -34,7 +34,7 @@ export default async function middleware(request: NextRequest) {
 
     if (!user) {
       // If no session, redirect to signin
-      return NextResponse.redirect(new URL('/signin', request.url));
+      return NextResponse.redirect(new URL('/login', request.url));
     }
 
     // Get user metadata to check role
@@ -45,14 +45,14 @@ export default async function middleware(request: NextRequest) {
 
     // If trying to access dashboard without admin role
     if (pathname.startsWith('/dashboard') && userRole !== 'admin') {
-      return NextResponse.redirect(new URL('/signin', request.url));
+      return NextResponse.redirect(new URL('/login', request.url));
     }
 
     // User is authenticated and authorized, allow the request to proceed
     return NextResponse.next();
   } catch (error) {
     // On error, redirect to signin
-    return NextResponse.redirect(new URL('/signin', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }
 
