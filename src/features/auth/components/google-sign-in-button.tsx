@@ -56,12 +56,12 @@ export function GoogleSignInButton() {
         {isLoading ? (
           <div className="flex items-center justify-center gap-2">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-primary/30" />
-            <span>Signing in...</span>
+            <span>جاري تسجيل الدخول...</span>
           </div>
         ) : (
           <div className="flex items-center justify-center gap-2">
+            <span>تسجيل الدخول باستخدام جوجل</span>
             <FcGoogle className="h-5 w-5" />
-            <span>Sign in with Google</span>
           </div>
         )}
       </Button>

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import { ArrowLeft, ArrowRight, GraduationCap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,6 @@ import {
   LoginFormValues,
   createLoginSchema,
 } from "@/features/auth/validations/login-schema";
-
 
 export function LoginForm() {
   const router = useRouter();
@@ -97,13 +96,9 @@ export function LoginForm() {
       } else if (errorMessage.includes("rate limit")) {
         const seconds = errorMessage.match(/\d+/)?.[0] || "60";
         setError("Rate limit");
-      } else if (
-        errorMessage.includes("pending approval")
-      ) {
+      } else if (errorMessage.includes("pending approval")) {
         setError("Pending approval");
-      } else if (
-        errorMessage.includes("profile not found")
-      ) {
+      } else if (errorMessage.includes("profile not found")) {
         setError("Profile not found");
       } else {
         setError("Error");
@@ -123,10 +118,10 @@ export function LoginForm() {
     <div className="w-full space-y-6">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-              Dashboard Login
+          تسجيل الدخول للوحة التحكم
         </h1>
         <p className="text-sm text-muted-foreground">
-          Login to your dashboard
+          قم بتسجيل الدخول إلى لوحة التحكم الخاصة بك
         </p>
       </div>
 
@@ -146,11 +141,11 @@ export function LoginForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
-                    placeholder="Email"
+                    placeholder="البريد الإلكتروني"
                     {...field}
                   />
                 </FormControl>
@@ -164,7 +159,7 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>كلمة المرور</FormLabel>
                 <FormControl>
                   <PasswordInput placeholder="••••••••" {...field} />
                 </FormControl>
@@ -175,12 +170,10 @@ export function LoginForm() {
 
           <div className="flex items-center justify-start">
             <Link
-              href={`/forgot-password?email=${form.getValues(
-                "email"
-              )}`}
+              href={`/forgot-password?email=${form.getValues("email")}`}
               className="text-sm font-medium text-primary hover:underline"
             >
-              Forgot Password
+              نسيت كلمة المرور؟
             </Link>
           </div>
 
@@ -190,13 +183,11 @@ export function LoginForm() {
             disabled={isPending}
           >
             {isPending ? (
-              "Signing in..."
+              "جاري تسجيل الدخول..."
             ) : (
               <>
-                Sign In
-                <ArrowRight
-                  className={`ml-2 h-4 w-4`}
-                />
+                تسجيل الدخول
+                <ArrowLeft className={`mr-2 h-4 w-4`} />
               </>
             )}
           </Button>
@@ -206,25 +197,25 @@ export function LoginForm() {
       <>
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or Continue With
-              </span>
-            </div>
+            <span className="w-full border-t" />
           </div>
-          <GoogleSignInButton  />
-        </>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              أو المتابعة باستخدام
+            </span>
+          </div>
+        </div>
+        <GoogleSignInButton />
+      </>
 
       <div className="text-center text-sm">
         <p className="text-muted-foreground">
-          Already have an account?{" "}
+          ليس لديك حساب؟{" "}
           <Link
             href={signUpHref}
             className="font-medium text-primary hover:underline"
           >
-            Sign Up
+            إنشاء حساب
           </Link>
         </p>
       </div>

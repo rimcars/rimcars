@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -93,10 +93,10 @@ export function RegisterForm() {
     <div className='w-full space-y-6'>
       <div className='flex flex-col space-y-2 text-center'>
         <h1 className='text-2xl font-semibold tracking-tight'>
-          Create an Account
+          إنشاء حساب جديد
         </h1>
         <p className='text-sm text-muted-foreground'>
-          Enter your details to create your account
+          أدخل بياناتك لإنشاء حساب جديد
         </p>
       </div>
 
@@ -109,9 +109,9 @@ export function RegisterForm() {
               name='name'
               render={({ field }) => (
                 <FormItem className='flex-1'>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>الاسم</FormLabel>
                   <FormControl>
-                    <Input placeholder='Enter your name' {...field} />
+                    <Input placeholder='أدخل اسمك' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,11 +123,11 @@ export function RegisterForm() {
             name='email'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
                   <Input
                     type='email'
-                    placeholder='Enter your email'
+                    placeholder='أدخل بريدك الإلكتروني'
                     {...field}
                   />
                 </FormControl>
@@ -141,9 +141,9 @@ export function RegisterForm() {
             name='password'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>كلمة المرور</FormLabel>
                 <FormControl>
-                  <PasswordInput placeholder='Create a password' {...field} />
+                  <PasswordInput placeholder='أدخل كلمة المرور' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,20 +159,20 @@ export function RegisterForm() {
               <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-white' />
             ) : (
               <>
-                Create Account
-                <ArrowRight className='ml-2 h-4 w-4' />
+                إنشاء حساب
+                <ArrowLeft className='mr-2 h-4 w-4' />
               </>
             )}
           </Button>
 
           <div className='text-center text-sm'>
             <p className='text-muted-foreground'>
-              Already have an account?{' '}
+              لديك حساب بالفعل؟{' '}
               <Link
                 href='/login'
                 className='font-medium text-primary hover:underline'
               >
-                Sign In
+                تسجيل الدخول
               </Link>
             </p>
           </div>

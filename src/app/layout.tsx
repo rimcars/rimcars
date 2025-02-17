@@ -3,8 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/layout/providers";
-
-const inter = Inter({ subsets: ["latin"] });
+import { tajawal } from "./font/font";
 
 export const metadata: Metadata = {
   title: "Ahmed Abdellahi Abdat - Portfolio",
@@ -18,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className={`${tajawal.variable}`}
+      >
         <Providers>
           <Toaster
             richColors

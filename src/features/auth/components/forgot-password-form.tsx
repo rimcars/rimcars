@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/utils/supabase/client";
 import {
   ForgotPasswordFormValues,
-  ForgotPasswordSchema
+  ForgotPasswordSchema,
 } from "@/features/auth/validations/forgot-password-schema";
 import { AuthMessage } from "@/features/auth/components/shared/auth-message";
 import { isUserExiste } from "@/app/actions";
@@ -67,7 +67,9 @@ export function ForgotPasswordForm() {
         const rateLimitMatch = error.message.match(/after (\d+) seconds/);
         if (rateLimitMatch || error.message.includes("expired")) {
           const seconds = rateLimitMatch ? rateLimitMatch[1] : 60;
-          setError(`Rate limit exceeded. Please try again in ${seconds} seconds.`);
+          setError(
+            `Rate limit exceeded. Please try again in ${seconds} seconds.`
+          );
           return;
         } else if (error.message.includes("email rate limit exceeded")) {
           setError("Rate limit exceeded");
@@ -99,18 +101,16 @@ export function ForgotPasswordForm() {
           <div className="space-y-4">
             <div className="text-center">
               <h1 className="text-xl font-semibold tracking-tight">
-                Check your email
+                تحقق من بريدك الإلكتروني
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Email sent
+                تم إرسال رابط إعادة تعيين كلمة المرور
               </p>
             </div>
             <Button asChild variant="outline" className="w-full gap-2 text-sm">
-              <Link
-                href={`/login${isConsultant ? "/consultant" : ""}`}
-              >
+              <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
                 <ArrowLeft className="h-4 w-4" />
-                Back to login
+                العودة لتسجيل الدخول
               </Link>
             </Button>
           </div>
@@ -118,10 +118,10 @@ export function ForgotPasswordForm() {
           <div className="space-y-4">
             <div className="text-center">
               <h1 className="text-xl font-semibold tracking-tight">
-                Forgot your password?
+                نسيت كلمة المرور؟
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Enter your email to reset your password
+                أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور
               </p>
             </div>
 
@@ -138,12 +138,12 @@ export function ForgotPasswordForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm">
-                        Email
+                        البريد الإلكتروني
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Email"
+                          placeholder="أدخل بريدك الإلكتروني"
                           className="text-sm"
                           {...field}
                         />
@@ -164,7 +164,7 @@ export function ForgotPasswordForm() {
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       </div>
                     ) : (
-                      "Reset password"
+                      "إعادة تعيين كلمة المرور"
                     )}
                   </Button>
 
@@ -173,11 +173,9 @@ export function ForgotPasswordForm() {
                     variant="outline"
                     className="w-full gap-2 text-sm"
                   >
-                    <Link
-                      href={`/login${isConsultant ? "/consultant" : ""}`}
-                    >
+                    <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
+                      العودة لتسجيل الدخول
                       <ArrowLeft className="h-4 w-4" />
-                      Back to login
                     </Link>
                   </Button>
                 </div>

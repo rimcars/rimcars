@@ -1,19 +1,16 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Regular user registration schema
 export const registerSchema = z.object({
   name: z
     .string()
-    .min(1, 'Name is required')
-    .min(2, 'Name must be at least 2 characters'),
+    .min(2, "يجب أن يتكون الاسم من حرفين على الأقل"),
   email: z
     .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+    .email("يرجى إدخال بريد إلكتروني صحيح"),
   password: z
     .string()
-    .min(1, 'Password is required')
-    .min(6, 'Password must be at least 6 characters')
+    .min(6, "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"),
 });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;

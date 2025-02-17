@@ -19,8 +19,10 @@ import {
 import { supabase } from "@/utils/supabase/client";
 import { PasswordInput } from "@/features/auth/components/shared/password-input";
 import { AuthMessage } from "@/features/auth/components/shared/auth-message";
-import { ResetPasswordSchema, ResetPasswordValues } from "@/features/auth/validations/reset-password-schema";
-
+import {
+  ResetPasswordSchema,
+  ResetPasswordValues,
+} from "@/features/auth/validations/reset-password-schema";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -134,7 +136,9 @@ export function ResetPasswordForm() {
         const rateLimitMatch = error.message.match(/after (\d+) seconds/);
         if (rateLimitMatch) {
           const seconds = rateLimitMatch[1];
-          setError(`Rate limit exceeded. Please try again in ${seconds} seconds.`);
+          setError(
+            `Rate limit exceeded. Please try again in ${seconds} seconds.`
+          );
           return;
         }
 
@@ -184,9 +188,7 @@ export function ResetPasswordForm() {
           <AuthMessage type="error" message={error} />
           <div className="mt-4">
             <Button asChild variant="outline" className="w-full gap-2 text-sm">
-              <Link
-                href={`/login${isConsultant ? "/consultant" : ""}`}
-              >
+              <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
                 <ArrowLeft className="h-4 w-4" />
                 Back to login
               </Link>
@@ -214,10 +216,10 @@ export function ResetPasswordForm() {
             </div>
             <div className="text-center">
               <h1 className="text-xl font-semibold tracking-tight">
-                {successMessage || "Password reset successfully"}
+                {successMessage || "تم إعادة تعيين كلمة المرور بنجاح"}
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Password reset successfully
+                تم إعادة تعيين كلمة المرور بنجاح
               </p>
             </div>
           </div>
@@ -225,10 +227,10 @@ export function ResetPasswordForm() {
           <div className="space-y-4">
             <div className="text-center">
               <h1 className="text-xl font-semibold tracking-tight">
-                Reset your password
+                إعادة تعيين كلمة المرور
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Enter your new password
+                أدخل كلمة المرور الجديدة
               </p>
             </div>
 
@@ -245,11 +247,11 @@ export function ResetPasswordForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm">
-                        New password
+                        كلمة المرور الجديدة
                       </FormLabel>
                       <FormControl>
                         <PasswordInput
-                          placeholder="New password"
+                          placeholder="كلمة المرور الجديدة"
                           className="text-sm"
                           {...field}
                         />
@@ -265,11 +267,11 @@ export function ResetPasswordForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm">
-                        Confirm password
+                        تأكيد كلمة المرور
                       </FormLabel>
                       <FormControl>
                         <PasswordInput
-                          placeholder="Confirm password"
+                          placeholder="تأكيد كلمة المرور"
                           className="text-sm"
                           {...field}
                         />
@@ -290,7 +292,7 @@ export function ResetPasswordForm() {
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       </div>
                     ) : (
-                      "Reset password"
+                      "تأكيد كلمة المرور الجديدة"
                     )}
                   </Button>
 
@@ -299,11 +301,9 @@ export function ResetPasswordForm() {
                     variant="outline"
                     className="w-full gap-2 text-sm"
                   >
-                    <Link
-                      href={`/login${isConsultant ? "/consultant" : ""}`}
-                    >
+                    <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
                       <ArrowLeft className="h-4 w-4" />
-                      Back to login
+                      العودة لتسجيل الدخول
                     </Link>
                   </Button>
                 </div>

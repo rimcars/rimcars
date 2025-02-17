@@ -44,10 +44,10 @@ export function VerifyEmailForm() {
         {/* Title and Description */}
         <div className="text-center">
           <h1 className="text-xl font-semibold tracking-tight">
-            Verify your email
+            قم بالتحقق من بريدك الإلكتروني
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Please check your email for a verification link.
+            يرجى التحقق من بريدك الإلكتروني لرابط التحقق.
           </p>
         </div>
 
@@ -65,10 +65,10 @@ export function VerifyEmailForm() {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-sm">
-                  1. Check your inbox
+                  1. يرجى التحقق من بريدك الإلكتروني
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Please check your email for a verification link.
+                  يرجى التحقق من بريدك الإلكتروني لرابط التحقق.
                 </p>
               </div>
             </div>
@@ -78,10 +78,10 @@ export function VerifyEmailForm() {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-sm">
-                  2. Click the link in your email
+                  2. انقر فوق الرابط في بريدك الإلكتروني
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Click the link in your email to verify your account.
+                  انقر فوق الرابط في بريدك الإلكتروني للتحقق من حسابك.
                 </p>
               </div>
             </div>
@@ -93,7 +93,8 @@ export function VerifyEmailForm() {
             className="flex items-start bg-muted/50 py-2"
           >
             <AlertDescription className="text-xs text-muted-foreground">
-              If you don't see the email, check your spam folder.
+              إذا لم ترى البريد الإلكتروني، فحاول التحقق من البريد الإلكتروني
+              المؤرشف.
             </AlertDescription>
           </Alert>
         </div>
@@ -104,8 +105,8 @@ export function VerifyEmailForm() {
             <Link
               href={`/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
             >
+              العودة لتسجيل الدخول
               <ArrowLeft className="h-4 w-4" />
-              Back to login
             </Link>
           </Button>
         </div>
