@@ -16,6 +16,7 @@ import {
   Settings,
   Bell,
   ChevronDown,
+  Cog,
   Menu
 } from 'lucide-react';
 
@@ -29,8 +30,10 @@ const cars = [
     year: 2023,
     mileage: 15000,
     fuelType: 'Petrol',
-    seats: 5,
-    status: 'Available'
+    transmission: 'manuel',
+    status: 'Available',
+    views:220
+
   },
   {
     id: 2,
@@ -40,8 +43,10 @@ const cars = [
     year: 2022,
     mileage: 20000,
     fuelType: 'Diesel',
-    seats: 5,
-    status: 'Under Offer'
+    transmission:'manuel',
+    status: 'Under Offer',
+    views:220
+
   },
   {
     id: 3,
@@ -51,8 +56,9 @@ const cars = [
     year: 2023,
     mileage: 12000,
     fuelType: 'Hybrid',
-    seats: 5,
-    status: 'Available'
+    transmission: 5,
+    status: 'Available',
+    views:220
   }
 ];
 
@@ -212,17 +218,8 @@ const SellerDashboard: React.FC = () => {
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Active Inquiries</p>
-                  <p className="text-2xl font-semibold text-gray-900">8</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <Calendar className="h-8 w-8 text-orange-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Avg. Days Listed</p>
-                  <p className="text-2xl font-semibold text-gray-900">15</p>
+                  <p className="text-sm font-medium text-gray-500">Profile Views</p>
+                  <p className="text-2xl font-semibold text-gray-900">25</p>
                 </div>
               </div>
             </div>
@@ -254,7 +251,7 @@ const SellerDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="grid gap-6 p-6">
               {cars.map(car => (
-                <div key={car.id} className="flex flex-col md:flex-row bg-white border rounded-lg overflow-hidden">
+                <div key={car.id} className="flex flex-col md:flex-row bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
                   <div className="md:w-72 h-48 relative">
                     <img 
                       src={car.image} 
@@ -263,6 +260,9 @@ const SellerDashboard: React.FC = () => {
                     />
                     <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-sm font-medium">
                       {car.status}
+                    </div>
+                    <div className="absolute bottom-2 left-2 bg-black text-white px-2 py-1 rounded text-sm font-medium opacity-0 hover:opacity-100 transition-opacity duration-300">
+                      {car.views} views
                     </div>
                   </div>
                   <div className="flex-1 p-6">
@@ -294,8 +294,8 @@ const SellerDashboard: React.FC = () => {
                         <span className="ml-2 text-sm text-gray-600">{car.fuelType}</span>
                       </div>
                       <div className="flex items-center">
-                        <Users className="h-5 w-5 text-gray-400" />
-                        <span className="ml-2 text-sm text-gray-600">{car.seats} seats</span>
+                        <Cog className="h-5 w-5 text-gray-400" />
+                        <span className="ml-2 text-sm text-gray-600">{car.transmission}</span>
                       </div>
                     </div>
                   </div>

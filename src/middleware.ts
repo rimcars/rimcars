@@ -3,7 +3,9 @@ import { createClient } from '@/utils/supabase/middleware';
 
 // Routes that don't require authentication
 const publicRoutes = [
+  
   '/', // Root page is public
+  '/landing',
   '/dashboard',
   '/login', // Login page
   '/signup', // Registration page

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/layout/providers";
 import { tajawal } from "./font/font";
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: "Ahmed Abdellahi Abdat - Portfolio",
@@ -21,15 +22,17 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${tajawal.variable}`}
       >
-        <Providers>
-          <Toaster
-            richColors
-            position="top-center"
-            theme="system"
-            duration={2000}
-          />
-          {children}
-        </Providers>
+        <ThemeProvider>
+          <Providers>
+            <Toaster
+              richColors
+              position="top-center"
+              theme="system"
+              duration={2000}
+            />
+            {children}
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );
