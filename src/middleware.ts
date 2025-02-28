@@ -1,31 +1,24 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@/utils/supabase/middleware';
+import { NextResponse, type NextRequest } from "next/server";
+import { createClient } from "@/utils/supabase/middleware";
 
-// Routes that don't require authentication
-const publicRoutes = [
-  '/', // Root page is public
-  '/dashboard', // Dashboard page is public
-'/dashboard/overview', // Dashboard overview page is public
-  '/dashboard/listings', // Dashboard listings page is public
-  '/dashboard/settings', // Dashboard settings page is publicac
-  '/login', // Login page
-  '/signup', // Registration page
-  '/verify-email', // Email verification page
-  '/forgot-password', // Password recovery
-  '/reset-password', // Password reset
-  '/auth/callback' // Auth callback handling
+// Routes that require seller role
+const sellerRoutes: string[] = [
+  "/dashboard/settings",
+  "/dashboard/listings",
+  "/dashboard/overview",
+  // Add more seller-only routes as needed
 ];
 
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Check if the route is public (no auth needed)
-  const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith('/auth/')
+  // Check if the route requires seller role
+  const requiresSellerRole = sellerRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route)
   );
 
-  // Allow public routes to proceed without authentication
-  if (isPublicRoute) {
+  // If the route doesn't require seller role, allow access (public route)
+  if (!requiresSellerRole) {
     return NextResponse.next();
   }
 
@@ -33,30 +26,27 @@ export default async function middleware(request: NextRequest) {
   try {
     const supabase = createClient(request);
     const {
-      data: { user }
+      data: { user },
     } = await supabase.auth.getUser();
 
+    // If no user and route requires seller role, redirect to login
     if (!user) {
-      // If no session, redirect to signin
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // Get user metadata to check role
-    const {
-      data: { user: userData }
-    } = await supabase.auth.getUser();
-    const userRole = userData?.user_metadata?.role;
+    // Check if user has seller role
+    const userRole = user.user_metadata?.role;
 
-    // If trying to access dashboard without admin role
-    if (pathname.startsWith('/dashboard') && userRole !== 'admin') {
-      return NextResponse.redirect(new URL('/login', request.url));
+    // If user is not a seller, redirect to home page
+    if (userRole !== "seller") {
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     // User is authenticated and authorized, allow the request to proceed
     return NextResponse.next();
   } catch (error) {
-    // On error, redirect to signin
-    return NextResponse.redirect(new URL('/login', request.url));
+    // On error, redirect to login
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 }
 
@@ -69,6 +59,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
-  ]
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

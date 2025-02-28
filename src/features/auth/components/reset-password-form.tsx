@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { ArrowLeft, Lock, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle2, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,7 @@ import {
   ResetPasswordSchema,
   ResetPasswordValues,
 } from "@/features/auth/validations/reset-password-schema";
+import { resetPassword } from "../actions/reset-password";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -32,78 +33,9 @@ export function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
   const searchParams = useSearchParams();
-  const isConsultant = searchParams.get("consultant") === "true";
   const code = searchParams.get("code");
+  const isSeller = searchParams.get("seller") === "true";
   const email = searchParams.get("email") || "";
-
-  // Verify the reset password code when component mounts
-  useEffect(() => {
-    async function verifyCode() {
-      if (!code || !email) {
-        setError("Invalid link");
-        setIsVerifying(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: code,
-          type: "recovery",
-          token: email,
-        });
-
-        console.log(data, error);
-
-        if (error) {
-          if (error.message.includes("expired")) {
-            setError("Link expired");
-          } else {
-            setError("Invalid link");
-          }
-          return;
-        }
-
-        // If we get here, the code is valid
-        setIsVerifying(false);
-      } catch (error) {
-        setError("Invalid link");
-        // Redirect to forgot password after a delay
-        setTimeout(() => {
-          router.push(`/forgot-password?consultant=${isConsultant}`);
-        }, 500);
-      }
-    }
-
-    verifyCode();
-  }, [code, router, isConsultant, email]);
-
-  useEffect(() => {
-    if (searchParams?.get("verified") === "true") {
-      setSuccess(true);
-      setSuccessMessage("Password reset successfully");
-    }
-
-    // Handle URL error parameters
-    const urlError = searchParams?.get("error");
-    const errorCode = searchParams?.get("error_code");
-    const errorDescription = searchParams?.get("error_description");
-
-    if (urlError || errorCode || errorDescription) {
-      // Handle specific error cases
-      if (
-        errorCode === "otp_expired" ||
-        errorDescription?.includes("expired")
-      ) {
-        setError("Link expired");
-      } else if (urlError === "No code provided") {
-        setError("Invalid link");
-      } else if (errorCode === "access_denied") {
-        setError("Access denied");
-      } else {
-        setError("An error occurred");
-      }
-    }
-  }, [searchParams, email]);
 
   const form = useForm<ResetPasswordValues>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -113,90 +45,54 @@ export function ResetPasswordForm() {
     },
   });
 
-  async function onSubmit(values: ResetPasswordValues) {
-    try {
-      setError(null);
-      setIsLoading(true);
-
-      const { error } = await supabase.auth.updateUser({
-        password: values.password,
-      });
-
-      if (error) {
-        // Update the condition to catch both possible error messages
-        if (
-          error.message.includes("same as your old") ||
-          error.message.includes("should be different from the old")
-        ) {
-          setError("Same password");
-          return;
-        }
-
-        // Handle rate limiting errors
-        const rateLimitMatch = error.message.match(/after (\d+) seconds/);
-        if (rateLimitMatch) {
-          const seconds = rateLimitMatch[1];
-          setError(
-            `Rate limit exceeded. Please try again in ${seconds} seconds.`
-          );
-          return;
-        }
-
-        // Handle other specific error cases
-        switch (error.message) {
-          case "Auth session missing!":
-            setError("Session expired");
-            break;
-          case "Invalid login credentials":
-            setError("Invalid session");
-            break;
-          default:
-            setError("An error occurred");
-        }
-        return;
-      }
-
-      setSuccess(true);
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        router.push(`/login${isConsultant ? "/consultant" : ""}`);
-      }, 500);
-    } catch (error) {
-      console.error(error);
-      setError("An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Show loading state while verifying the code
-  if (isVerifying) {
-    return (
-      <div className="flex min-h-[80vh] w-full items-center justify-center">
-        <div className="flex items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
-      </div>
-    );
-  }
-
-  // If there's an error and no form should be shown, display only the error
-  if (error && !code) {
+  // If no code is provided, show error and redirect
+  if (!code) {
     return (
       <div className="flex min-h-[80vh] w-full items-center justify-center">
         <div className="w-full max-w-md px-4">
-          <AuthMessage type="error" message={error} />
+          <AuthMessage type="error" message={"Invalid link"} />
           <div className="mt-4">
             <Button asChild variant="outline" className="w-full gap-2 text-sm">
-              <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
+              <Link href={`/${isSeller ? "/seller/login" : "/login"}`}>
+                العودة لتسجيل الدخول
                 <ArrowLeft className="h-4 w-4" />
-                Back to login
               </Link>
             </Button>
           </div>
         </div>
       </div>
     );
+  }
+
+  async function onSubmit(values: ResetPasswordValues) {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      // Call the server action to reset password
+      const result = await resetPassword({
+        ...values,
+        code: code || "", // Ensure code is never null
+      });
+
+      if (!result.success) {
+        // Use the error message from the server response
+        setError(result.message || "حدث خطأ");
+        return;
+      }
+
+      // Success - show message and redirect to login
+      setSuccess(true);
+      setSuccessMessage(result.message || "تم إعادة تعيين كلمة المرور بنجاح");
+      setTimeout(() => {
+        router.push(`/${isSeller ? "seller/login" : "login"}`);
+      }, 2000);
+    } catch (error) {
+      console.error("Error in onSubmit:", error);
+      setError("حدث خطأ");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -301,7 +197,7 @@ export function ResetPasswordForm() {
                     variant="outline"
                     className="w-full gap-2 text-sm"
                   >
-                    <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
+                    <Link href={`/${isSeller ? "seller/login" : "login"}`}>
                       <ArrowLeft className="h-4 w-4" />
                       العودة لتسجيل الدخول
                     </Link>

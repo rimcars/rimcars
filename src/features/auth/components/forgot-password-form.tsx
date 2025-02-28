@@ -31,7 +31,7 @@ export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const emailFromQuery = searchParams.get("email");
-  const isConsultant = searchParams.get("consultant") == "true";
+  const isSeller = searchParams.get("seller") == "true";
 
   const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(ForgotPasswordSchema),
@@ -47,18 +47,18 @@ export function ForgotPasswordForm() {
       setIsLoading(true);
 
       // Check if user exists in database
-      const userExists = await isUserExiste(values.email);
+      // const userExists = await isUserExiste(values.email);
 
-      if (!userExists) {
-        setError("User not found");
-        setIsLoading(false);
-        return;
-      }
+      // if (!userExists) {
+      //   setError("User not found");
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       const { error } = await supabase.auth.resetPasswordForEmail(
         values.email,
         {
-          redirectTo: `${window.location.origin}/reset-password?consultant=${isConsultant}?email=${values.email}`,
+          redirectTo: `${window.location.origin}/reset-password?seller=${isSeller}?email=${values.email}`,
         }
       );
 
@@ -108,7 +108,7 @@ export function ForgotPasswordForm() {
               </p>
             </div>
             <Button asChild variant="outline" className="w-full gap-2 text-sm">
-              <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
+                <Link href={`/${isSeller ? "seller/login" : "login"}`}>
                 <ArrowLeft className="h-4 w-4" />
                 العودة لتسجيل الدخول
               </Link>
@@ -173,7 +173,7 @@ export function ForgotPasswordForm() {
                     variant="outline"
                     className="w-full gap-2 text-sm"
                   >
-                    <Link href={`/login${isConsultant ? "/consultant" : ""}`}>
+                    <Link href={`/${isSeller ? "seller/login" : "login"}`}>
                       العودة لتسجيل الدخول
                       <ArrowLeft className="h-4 w-4" />
                     </Link>

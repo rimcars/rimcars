@@ -27,14 +27,18 @@ export async function GET(request: Request) {
       );
     }
 
-    // If this is email verification, check for returnTo and redirect
+    // If this is email verification, redirect to dashboard
     if (type === "email_verification") {
+      // For email verification, redirect to dashboard
       return NextResponse.redirect(
-        new URL(`${next}?verified=true`, request.url)
+        new URL(`/dashboard?verified=true`, requestUrl.origin)
       );
     }
 
-    return NextResponse.redirect(new URL(`${next}?verified=true`, request.url));
+    // For other auth callbacks (like password reset), use the next parameter
+    return NextResponse.redirect(
+      new URL(`${next}?verified=true`, requestUrl.origin)
+    );
   } catch (error) {
     console.error("Unknown error in auth callback:", error);
     return NextResponse.redirect(

@@ -25,8 +25,9 @@ import {
   LoginFormValues,
   createLoginSchema,
 } from "@/features/auth/validations/login-schema";
+import { toast } from "sonner";
 
-export function LoginForm() {
+export function LoginForm({ isSeller = false }: { isSeller?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -34,31 +35,11 @@ export function LoginForm() {
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
-  // Check for verification success message and errors
+  // Check for verification success message
   useEffect(() => {
     if (searchParams?.get("verified") === "true") {
       setSuccess("Email verified");
-    }
-
-    // Handle URL error parameters
-    const urlError = searchParams?.get("error");
-    const errorCode = searchParams?.get("error_code");
-    const errorDescription = searchParams?.get("error_description");
-
-    if (urlError || errorCode || errorDescription) {
-      if (
-        errorCode === "otp_expired" ||
-        errorDescription?.includes("expired")
-      ) {
-        setError("Link expired");
-      } else if (urlError === "No code provided") {
-        setError("Invalid link");
-      } else if (errorCode === "access_denied") {
-        setError("Access denied");
-      } else {
-        setError("Error");
       }
-    }
   }, [searchParams]);
 
   const form = useForm<LoginFormValues>({
@@ -75,16 +56,21 @@ export function LoginForm() {
       setUnverifiedEmail(null);
       setIsPending(true);
 
-      const result = await login(values);
+      const result = await login(values , isSeller);
       console.log("result of the login from the login form", result);
 
       if (!result?.error) {
+        router.push(`${isSeller ? "/dashboard" : "/"}`);
+        toast.success("تم تسجيل الدخول بنجاح");
         return;
       }
 
       // Handle errors
       const errorMessage = result.error.toLowerCase();
-      if (errorMessage.includes("invalid login credentials")) {
+      // check if the error message includes "you are not a seller"
+      if (errorMessage.includes("you are not a seller")) {
+        setError("You are not a seller");
+      } else if (errorMessage.includes("invalid login credentials")) {
         setError("Invalid credentials");
       } else if (errorMessage.includes("email not confirmed")) {
         setError("Email not confirmed");
@@ -112,7 +98,7 @@ export function LoginForm() {
   }
 
   // Update the sign up link to preserve the returnTo parameter
-  const signUpHref = `/signup`;
+  const signUpHref = isSeller ? `/seller/signup` : `/signup`;
 
   return (
     <div className="w-full space-y-6">
@@ -170,7 +156,7 @@ export function LoginForm() {
 
           <div className="flex items-center justify-start">
             <Link
-              href={`/forgot-password?email=${form.getValues("email")}`}
+              href={`/forgot-password?seller=${isSeller}&email=${form.getValues("email")}`}
               className="text-sm font-medium text-primary hover:underline"
             >
               نسيت كلمة المرور؟

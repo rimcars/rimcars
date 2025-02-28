@@ -47,7 +47,7 @@ function AuthMessage({ type, message }: AuthMessageProps) {
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ isSeller = false }: { isSeller?: boolean }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -73,7 +73,7 @@ export function RegisterForm() {
         return;
       }
 
-      const result = await signupUser(values);
+      const result = await signupUser(values , isSeller);
       if (result?.error) {
         setError(result.error);
         console.log(result.error);
@@ -169,7 +169,7 @@ export function RegisterForm() {
             <p className='text-muted-foreground'>
               لديك حساب بالفعل؟{' '}
               <Link
-                href='/login'
+                href={isSeller ? '/seller/login' : '/login'}
                 className='font-medium text-primary hover:underline'
               >
                 تسجيل الدخول

@@ -7,11 +7,6 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser();
-
-  if (user) {
-    redirect("/dashboard");
-  }
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">

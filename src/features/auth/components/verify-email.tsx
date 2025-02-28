@@ -12,7 +12,7 @@ export function VerifyEmailForm() {
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const isConsultant = searchParams.get("consultant") === "true";
+  const isSeller = searchParams.get("seller") === "true";
   const [returnTo, setReturnTo] = useState<string | null>(null);
 
   // Get returnTo from session storage
@@ -103,7 +103,7 @@ export function VerifyEmailForm() {
         <div className="mt-6">
           <Button asChild variant="outline" className="w-full gap-2 text-sm">
             <Link
-              href={`/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
+              href={`/${isSeller ? "seller/login" : "login"}${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
             >
               العودة لتسجيل الدخول
               <ArrowLeft className="h-4 w-4" />

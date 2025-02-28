@@ -1,17 +1,17 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
-import type { RegisterFormValues } from '../validations/register-schema';
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import type { RegisterFormValues } from "../validations/register-schema";
 
 export async function isUserExist(email: string) {
   const supabase = await createClient();
 
   const { data: profile } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', email)
+    .from("users")
+    .select("id")
+    .eq("email", email)
     .single();
 
   if (profile?.id) {
@@ -21,7 +21,10 @@ export async function isUserExist(email: string) {
   return null;
 }
 
-export async function signupUser(values: RegisterFormValues) {
+export async function signupUser(
+  values: RegisterFormValues,
+  isSeller: boolean
+) {
   const supabase = await createClient();
 
   try {
@@ -32,9 +35,12 @@ export async function signupUser(values: RegisterFormValues) {
       options: {
         data: {
           full_name: values.name,
+          role: isSeller ? "seller" : "buyer",
         },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/${process.env.NEXT_PUBLIC_VERIFY_EMAIL_REDIRECT}?type=email_verification`
-      }
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/${(
+          process.env.NEXT_PUBLIC_VERIFY_EMAIL_REDIRECT || "auth/callback"
+        ).replace(/^\//, "")}?type=email_verification`,
+      },
     });
 
     if (authError) {
@@ -43,12 +49,12 @@ export async function signupUser(values: RegisterFormValues) {
     }
 
     if (!authData?.user?.id) {
-      return { error: 'Failed to create user' };
+      return { error: "Failed to create user" };
     }
 
-    revalidatePath('/', 'layout');
+    revalidatePath("/", "layout");
   } catch (error) {
     console.log(error);
-    return { error: 'Failed to create user' };
+    return { error: "Failed to create user" };
   }
 }
