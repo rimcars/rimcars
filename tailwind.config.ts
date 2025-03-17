@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
-const config: Config = {
-  darkMode: "class",
+const config = {
+  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -82,12 +82,8 @@ const config: Config = {
           to: { height: "0" },
         },
         rainbow: {
-          "0%": {
-            "background-position": "0%",
-          },
-          "100%": {
-            "background-position": "200%",
-          },
+          "0%": { "background-position": "0%" },
+          "100%": { "background-position": "200%" },
         },
       },
       animation: {
@@ -98,6 +94,6 @@ const config: Config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-};
+} as const satisfies Config;
 
-export default config;
+export default config; 

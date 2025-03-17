@@ -9,15 +9,30 @@ const sellerRoutes: string[] = [
   // Add more seller-only routes as needed
 ];
 
+// Public routes that should bypass auth check
+const publicRoutes: string[] = [
+  "/",
+  "/cars",
+  "/cars/[id]",
+  "/auth",
+  "/login",
+  "/register",
+];
+
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // Check if the route is public
+  if (publicRoutes.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
 
   // Check if the route requires seller role
   const requiresSellerRole = sellerRoutes.some(
     (route) => pathname === route || pathname.startsWith(route)
   );
 
-  // If the route doesn't require seller role, allow access (public route)
+  // If the route doesn't require seller role, allow access
   if (!requiresSellerRole) {
     return NextResponse.next();
   }
