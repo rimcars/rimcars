@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/middleware";
 
+
 // Routes that require seller role
 const sellerRoutes: string[] = [
   "/dashboard/settings",
@@ -10,13 +11,22 @@ const sellerRoutes: string[] = [
 ];
 
 // Public routes that should bypass auth check
-const publicRoutes: string[] = [
-  "/",
+
+
+// Routes that don't require authentication
+const publicRoutes = [
+  
+  '/', // Root page is public
   "/cars",
   "/cars/[id]",
-  "/auth",
-  "/login",
-  "/register",
+  '/landing',
+  '/dashboard',
+  '/login', // Login page
+  '/signup', // Registration page
+  '/verify-email', // Email verification page
+  '/forgot-password', // Password recovery
+  '/reset-password', // Password reset
+  '/auth/callback' // Auth callback handling
 ];
 
 export default async function middleware(request: NextRequest) {
