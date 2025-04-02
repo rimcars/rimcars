@@ -1,42 +1,55 @@
-"use client";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { getPublicListingById } from "@/features/public-listings/actions";
+import { convertListingToUiCar } from "@/features/public-listings/types";
+import { CarDetailsClient } from "@/features/public-listings/components/car-details-client";
 
-import { CarDetailsClient } from "@/components/car-details-client"
+export const dynamic = "force-dynamic";
 
-// Sample data - replace with your actual data source
-const sampleCar = {
-  id: 1,
-  name: "Tesla Model 3",
-  price: 45000,
-  year: 2023,
-  image: "/cars/tesla-model-3.jpg",
-  speed: 233,
-  mileage: 0,
-  fuelType: "Electric",
-  transmission: "Automatic",
-  brand: "Tesla",
-  description: "The Tesla Model 3 is an all-electric four-door sedan...",
-  engine: "Dual Motor",
-  horsepower: 450,
-  acceleration: 3.1,
-  colors: ["Red", "White", "Black", "Blue"],
-  features: [
-    "Autopilot",
-    "15\" Touchscreen",
-    "Premium Audio",
-    "Glass Roof"
-  ],
-  gallery: [
-    "/cars/tesla-model-3.jpg",
-    "/cars/tesla-model-3-interior.jpg",
-    "/cars/tesla-model-3-side.jpg",
-    "/cars/tesla-model-3-back.jpg"
-  ]
-};
+// Generate dynamic metadata for the page
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  // Fetch car data
+  const { data: listing } = await getPublicListingById(params.id);
 
-const sampleCars = [sampleCar]; // Add more cars for the "You might also like" section
+  if (!listing) {
+    return {
+      title: "سيارة غير موجودة",
+      description: "لم يتم العثور على السيارة المطلوبة",
+    };
+  }
 
-export default function CarDetailsPage({ params }: { params: { id: string } }) {
-  // In a real app, you would fetch the car data based on params.id
-  return <CarDetailsClient car={sampleCar} allCars={sampleCars} />;
+  return {
+    title: `${listing.car_name} - تفاصيل السيارة`,
+    description: listing.description || `تفاصيل ${listing.car_name}`,
+  };
 }
 
+export default async function CarDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  // Fetch car data
+  const { data: listing, error } = await getPublicListingById(params.id);
+
+  // If car not found, show 404 page
+  if (!listing || error) {
+    notFound();
+  }
+
+  // Convert listing to UI car format
+  const car = convertListingToUiCar(listing);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Suspense fallback={<div className="container py-10">Loading...</div>}>
+        <CarDetailsClient car={car} />
+      </Suspense>
+    </div>
+  );
+}
