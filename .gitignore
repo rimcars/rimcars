@@ -19,6 +19,7 @@
 .cursorrules
 
 project_requirements.md
+docs/*
 
 .cursor/*
 
