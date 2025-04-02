@@ -1,22 +1,26 @@
+import { cn } from "@/lib/utils";
 import React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface PageContainerProps {
+  children: React.ReactNode;
+  className?: string;
+  scrollable?: boolean;
+}
 
 export default function PageContainer({
   children,
-  scrollable = true,
-}: {
-  children: React.ReactNode;
-  scrollable?: boolean;
-}) {
+  className,
+  scrollable = false,
+}: PageContainerProps) {
   return (
-    <>
-      {scrollable ? (
-        <ScrollArea className="h-[calc(100dvh-52px)] rtl">
-          <div className="flex flex-1 p-4 md:px-6">{children}</div>
-        </ScrollArea>
-      ) : (
-        <div className="flex flex-1 p-4 md:px-6 rtl">{children}</div>
+    <main
+      className={cn(
+        "flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6",
+        scrollable && "overflow-auto",
+        className
       )}
-    </>
+    >
+      {children}
+    </main>
   );
 }
