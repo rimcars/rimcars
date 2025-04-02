@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import AppSidebar from "@/components/layout/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
@@ -17,7 +16,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getUser();
-  if(user?.role !== "seller"){
+  if (user?.role !== "seller") {
     redirect("/");
   }
   // Persisting the sidebar state in the cookie.
@@ -35,16 +34,3 @@ export default async function DashboardLayout({
     </SidebarProvider>
   );
 }
-=======
-import React from 'react';
-
-const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <div className="dashboard-layout">
-      {children}
-    </div>
-  );
-};
-
-export default DashboardLayout; 
->>>>>>> ee1ef6661b18b7bf849401bf6198ad592b066852
