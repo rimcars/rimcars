@@ -1,21 +1,62 @@
-import { ModeToggle } from "@/components/mode-toggle";
-import ThemeToggle from "@/components/layout/ThemeToggle/theme-toggle";
-import LogoutButton from "@/components/logout-button";
 import { getUser } from "@/app/actions";
 import Hero from "@/components/hero";
+import Header from "@/components/header";
+import FeaturedCars from "@/components/featured-cars";
+import Testimonials from "@/components/testimonials";
+import Footer from "@/components/footer";
+
+async function getFeaturedCars() {
+  // This would typically fetch from your database
+  // For now, we'll use mock data
+  return [
+    {
+      id: "1",
+      car_name: "BMW 3 Series",
+      make: "BMW",
+      model: "3 Series",
+      year: 2023,
+      price: 45000,
+      condition: "new",
+      images: ["/car-placeholder.jpg"]
+    },
+    {
+      id: "2",
+      car_name: "Mercedes-Benz C-Class",
+      make: "Mercedes-Benz",
+      model: "C-Class",
+      year: 2022,
+      price: 42000,
+      condition: "used",
+      images: ["/car-placeholder.jpg"]
+    },
+    {
+      id: "3",
+      car_name: "Audi A4",
+      make: "Audi",
+      model: "A4",
+      year: 2023,
+      price: 39000,
+      condition: "new",
+      images: ["/car-placeholder.jpg"]
+    }
+  ];
+}
+
 export default async function Home() {
   const user = await getUser();
+  const featuredCars = await getFeaturedCars();
+  
   return (
-    <section className="flex justify-center items-center h-screen">
-      <ModeToggle />
-
-      <h1>Hello World</h1>
+    <div className="flex min-h-screen flex-col">
+      <Header user={user} />
       
-      <ThemeToggle />
+      <main className="flex-1">
+        <Hero isLoggedIn={!!user} />
+        <FeaturedCars cars={featuredCars} />
+        <Testimonials />
+      </main>
       
-      {user && <LogoutButton />}
-      
-    </section>
-    
+      <Footer />
+    </div>
   );
 }
