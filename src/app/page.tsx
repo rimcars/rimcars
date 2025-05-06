@@ -1,6 +1,7 @@
 import { getUser } from "@/app/actions";
 import Hero from "@/components/hero";
 import Header from "@/components/header";
+import SearchBar from "@/components/search-bar";
 import FeaturedCars from "@/components/featured-cars";
 import Testimonials from "@/components/testimonials";
 import Footer from "@/components/footer";
@@ -52,6 +53,9 @@ export default async function Home() {
       
       <main className="flex-1">
         <Hero isLoggedIn={!!user} />
+        <div className="container mx-auto px-4 -mt-8 relative z-10">
+          <SearchBar />
+        </div>
         <FeaturedCars cars={featuredCars} />
         <Testimonials />
       </main>

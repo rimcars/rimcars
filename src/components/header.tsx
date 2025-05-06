@@ -1,8 +1,12 @@
+"use client"
 import Link from 'next/link';
 import Image from 'next/image';
 import { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
+import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
+import { signOut } from "@/app/actions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +23,7 @@ interface HeaderProps {
 
 
 export default function Header({ user, userDetails }: HeaderProps) {
+  const router = useRouter();
   const navItems = [
     { name: 'Home', href: '/' },
     { name: 'Cars', href: '/cars' },
@@ -88,8 +93,8 @@ export default function Header({ user, userDetails }: HeaderProps) {
                 <DropdownMenuItem>
                   <Link href="/dashboard/settings" className="w-full">Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/api/auth/logout" className="w-full">Logout</Link>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
