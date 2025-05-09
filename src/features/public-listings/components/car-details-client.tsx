@@ -18,6 +18,9 @@ import {
   Shield,
   Info,
   Check,
+  User,
+  Phone,
+  MapPin,
 } from "lucide-react";
 import { UiCar } from "../types";
 
@@ -105,7 +108,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
           </div>
         </div>
         <div className="text-3xl font-bold">
-          {car.price.toLocaleString()} ر.س
+          {car.price.toLocaleString()} MRU
         </div>
       </div>
 
@@ -156,15 +159,15 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Gauge className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <div className="text-sm text-muted-foreground">
-                  السرعة القصوى
+            {car.condition && (
+              <div className="flex items-center gap-2">
+                <CarIcon className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <div className="text-sm text-muted-foreground">الحالة</div>
+                  <div className="font-medium">{car.condition}</div>
                 </div>
-                <div className="font-medium">{car.speed} كم/س</div>
               </div>
-            </div>
+            )}
             <div className="flex items-center gap-2">
               <Fuel className="h-5 w-5 text-muted-foreground" />
               <div>
@@ -195,10 +198,12 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                 <span className="font-medium">{car.year}</span>
               </div>
             )}
-            <div className="flex justify-between py-2 border-b">
-              <span className="text-muted-foreground">السرعة القصوى</span>
-              <span className="font-medium">{car.speed} كم/س</span>
-            </div>
+            {car.condition && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-muted-foreground">الحالة</span>
+                <span className="font-medium">{car.condition}</span>
+              </div>
+            )}
             <div className="flex justify-between py-2 border-b">
               <span className="text-muted-foreground">ناقل الحركة</span>
               <span className="font-medium">{car.transmission}</span>
@@ -215,20 +220,78 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
                 </span>
               </div>
             )}
+            {car.location && (
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-muted-foreground">الموقع</span>
+                <span className="font-medium">{car.location}</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* جانب الإجراءات */}
         <div className="md:col-span-1">
           <div className="bg-muted p-6 rounded-lg sticky top-4">
+            <h3 className="text-lg font-semibold mb-4">معلومات البائع</h3>
+
+            {car.sellerName || car.sellerPhone ? (
+              <div className="space-y-4 mb-6">
+                {car.sellerName && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">الاسم</div>
+                      <div className="font-medium">{car.sellerName}</div>
+                    </div>
+                  </div>
+                )}
+
+                {car.sellerPhone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">
+                        رقم الهاتف
+                      </div>
+                      <div className="font-medium" dir="ltr">
+                        {car.sellerPhone}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {car.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="text-sm text-muted-foreground">
+                        الموقع
+                      </div>
+                      <div className="font-medium">{car.location}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-muted-foreground mb-4">
+                لا توجد معلومات اتصال متاحة للبائع
+              </div>
+            )}
+
             <h3 className="text-lg font-semibold mb-4">مهتم بهذه السيارة؟</h3>
             <div className="space-y-3">
-              <Button className="w-full">جدولة قيادة تجريبية</Button>
+              {car.sellerPhone ? (
+                <Button className="w-full" asChild>
+                  <a href={`tel:${car.sellerPhone}`}>
+                    اتصل بالبائع
+                    <Phone className="h-4 w-4 mr-2" />
+                  </a>
+                </Button>
+              ) : (
+                <Button className="w-full">جدولة قيادة تجريبية</Button>
+              )}
               <Button variant="outline" className="w-full">
                 طلب المزيد من المعلومات
-              </Button>
-              <Button variant="outline" className="w-full">
-                التحقق من التوفر
               </Button>
             </div>
           </div>

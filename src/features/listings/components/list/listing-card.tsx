@@ -57,7 +57,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
             <div className="flex flex-col md:flex-row justify-between gap-2">
               <h3 className="font-medium">{listing.car_name}</h3>
               <div className="text-primary font-bold">
-                ${listing.price.toLocaleString()}
+                {listing.price.toLocaleString()} MRU
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-1">

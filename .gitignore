@@ -16,12 +16,10 @@
 # production
 /build
 
-.cursorrules
 
 project_requirements.md
 docs/*
 
-.cursor/*
 
 # misc
 .DS_Store

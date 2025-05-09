@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { ListingFormValues } from "./types";
+import { ListingFormValues, StrictListingFields } from "./types";
 import {
   deleteCarImages,
   uploadCarImages,
@@ -11,7 +11,7 @@ import {
 import { getUser } from "@/app/actions";
 
 // Create a new listing
-export async function createListing(data: ListingFormValues) {
+export async function createListing(data: StrictListingFields) {
   try {
     const supabase = await createClient();
 
@@ -88,7 +88,7 @@ export async function getListingById(id: string) {
 }
 
 // Update a listing
-export async function updateListing(id: string, data: ListingFormValues) {
+export async function updateListing(id: string, data: StrictListingFields) {
   try {
     const supabase = await createClient();
 
@@ -196,6 +196,42 @@ export async function deleteListing(id: string) {
   }
 }
 
+// Convert from form data to strict format
+function parseFormData(formData: any): StrictListingFields {
+  // Ensure year and mileage are numbers
+  const year =
+    typeof formData.year === "number"
+      ? formData.year
+      : formData.year
+      ? Number(formData.year)
+      : new Date().getFullYear();
+
+  const mileage =
+    typeof formData.mileage === "number"
+      ? formData.mileage
+      : formData.mileage
+      ? Number(formData.mileage)
+      : 0;
+
+  return {
+    car_name: formData.car_name,
+    description: formData.description,
+    price: formData.price,
+    old_price: formData.old_price,
+    make: formData.make || "",
+    model: formData.model || "",
+    year,
+    mileage,
+    location: formData.location || "",
+    condition: formData.condition,
+    transmission: formData.transmission,
+    fuel_type: formData.fuel_type,
+    images: formData.images,
+    seller_name: formData.seller_name || "",
+    seller_phone: formData.seller_phone || "",
+  };
+}
+
 // Handle form submission for both create and update
 export async function handleListingFormAction(
   formData: FormData,
@@ -228,6 +264,8 @@ export async function handleListingFormAction(
       | "diesel"
       | "electric"
       | "hybrid";
+    const seller_name = formData.get("seller_name") as string;
+    const seller_phone = formData.get("seller_phone") as string;
 
     // Get images JSON string from form data
     const imagesJson = formData.get("images") as string;
@@ -273,46 +311,26 @@ export async function handleListingFormAction(
       transmission,
       fuel_type,
       images,
+      seller_name,
+      seller_phone,
     };
 
     try {
+      // Convert form data to strict format
+      const strictData = parseFormData(data);
+
       // Skip update if listingId is 'new'
       if (listingId && listingId !== "new") {
         // Update existing listing
-        return updateListing(listingId, data);
+        return updateListing(listingId, strictData);
       }
 
       // Create new listing
-      return createListing(data);
+      return createListing(strictData);
     } catch (actionError) {
       return { data: null, error: "فشل في حفظ البيانات" };
     }
   } catch (error) {
     return { data: null, error: "حدث خطأ أثناء معالجة الطلب" };
-  }
-}
-
-// Add the following function for image uploads
-export async function uploadListingImages(formData: FormData) {
-  "use server";
-
-  try {
-    // Get the files from the formData
-    const files = formData.getAll("files") as File[];
-
-    if (!files || files.length === 0) {
-      return { error: "لا توجد ملفات للرفع", urls: [] };
-    }
-
-    // Upload all files and get URLs
-    const urls = await uploadCarImages(files);
-
-    if (!urls || urls.length === 0) {
-      return { error: "فشل في الحصول على روابط الصور", urls: [] };
-    }
-
-    return { error: null, urls };
-  } catch (error) {
-    return { error: "حدث خطأ أثناء رفع الصور", urls: [] };
   }
 }

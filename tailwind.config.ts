@@ -17,6 +17,13 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        tajawal: ["var(--font-tajawal)"],
+        cairo: ["var(--font-cairo)"],
+        almarai: ["var(--font-almarai)"],
+        roboto: ["var(--font-roboto)"],
+        sans: ["var(--font-almarai)", "var(--font-tajawal)", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -74,26 +81,50 @@ const config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
         rainbow: {
-          "0%": { "background-position": "0%" },
-          "100%": { "background-position": "200%" },
+          "0%": {
+            "background-position": "0%",
+          },
+          "100%": {
+            "background-position": "200%",
+          },
+        },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - var(--gap)))" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         rainbow: "rainbow var(--speed, 2s) infinite linear",
+        marquee: "marquee var(--duration) linear infinite",
+      },
+      backgroundImage: {
+        "grid-pattern": 'url("/grid-pattern.svg")',
+        "grid-pattern-light": 'url("/grid-pattern-light.svg")',
+      },
+      maxWidth: {
+        container: "1280px",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
 } as const satisfies Config;
 
-export default config; 
+export default config;

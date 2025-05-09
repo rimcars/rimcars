@@ -7,11 +7,14 @@ export interface UiCar {
   price: number;
   year: number | null;
   image: string;
-  speed: number; // We'll set a default value
   mileage: number | null;
   fuelType: string;
   transmission: string;
   brand: string; // From make field
+  condition: string; // From condition field
+  location: string | null; // Add location from database
+  sellerName: string | null; // Add seller name
+  sellerPhone: string | null; // Add seller phone
 }
 
 /**
@@ -48,10 +51,13 @@ export function convertListingToUiCar(listing: Listing): UiCar {
       listing.images && listing.images.length > 0
         ? listing.images[0]
         : "/placeholder.svg?height=300&width=500",
-    speed: 220, // Default speed since we don't have this in our schema
     mileage: listing.mileage,
     fuelType: fuelTypeMap[listing.fuel_type] || listing.fuel_type,
     transmission: transmissionMap[listing.transmission] || listing.transmission,
     brand: listing.make || "",
+    condition: conditionMap[listing.condition] || listing.condition,
+    location: listing.location,
+    sellerName: listing.seller_name,
+    sellerPhone: listing.seller_phone,
   };
 }

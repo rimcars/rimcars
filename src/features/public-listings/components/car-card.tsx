@@ -49,7 +49,7 @@ export function CarCard({ car, isFavorite, onToggleFavorite }: CarCardProps) {
           <Badge variant="outline">{car.brand}</Badge>
         </div>
         <div className="text-2xl font-bold mb-4">
-          {car.price.toLocaleString()} ر.س
+          {car.price.toLocaleString()} MRU
         </div>
 
         <div className="grid grid-cols-2 gap-3">

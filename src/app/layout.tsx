@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/layout/providers";
-import { tajawal } from "./font/font";
-// import { ThemeProvider } from '@/components/ThemeProvider';
+import { tajawal, cairo, almarai } from "./font/font";
+import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Ahmed Abdellahi Abdat - Portfolio",
-  description: "Full Stack Developer specializing in modern web applications",
+  title: "سيارات الريم - منصة بيع وشراء السيارات",
+  description: "منصة متخصصة في بيع وشراء السيارات في موريتانيا",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -20,17 +19,18 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${tajawal.variable}`}
+        className={`${almarai.variable} ${tajawal.variable} ${cairo.variable} font-almarai`}
       >
-          <Providers>
-            <Toaster
-              richColors
-              position="top-center"
-              theme="system"
-              duration={2000}
-            />
-            {children}
-          </Providers>
+        <Providers>
+          <Toaster
+            richColors
+            position="top-center"
+            theme="system"
+            duration={2000}
+          />
+          {children}
+          {/* <Footer /> */}
+        </Providers>
       </body>
     </html>
   );

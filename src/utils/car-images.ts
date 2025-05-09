@@ -124,6 +124,7 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
     // Get current user
     const user = await getUser();
     if (!user) {
+      console.error("User authentication failed in uploadCarImages");
       throw new Error("User not authenticated");
     }
 
@@ -134,6 +135,7 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
     for (const file of files) {
       // Validate file
       if (!file || !(file instanceof File)) {
+        console.warn("Invalid file object received, skipping");
         continue;
       }
 
@@ -150,6 +152,12 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
         // Retry logic for uploads
         while (!uploadSuccess && retries < 2) {
           try {
+            console.log(
+              `Attempting to upload file: ${file.name} (${
+                file.size
+              } bytes), attempt ${retries + 1}`
+            );
+
             const { error, data } = await supabase.storage
               .from("car-images")
               .upload(fileName, file, {
@@ -158,6 +166,7 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
               });
 
             if (error) {
+              console.error(`Upload error on attempt ${retries + 1}:`, error);
               uploadError = error;
               retries++;
               // Wait before retry
@@ -166,6 +175,7 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
                   setTimeout(resolve, 500 * retries)
                 );
             } else {
+              console.log(`Upload successful: ${fileName}`);
               uploadSuccess = true;
               uploadedPaths.push(fileName);
 
@@ -175,8 +185,13 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
                 .getPublicUrl(fileName);
 
               urls.push(urlData.publicUrl);
+              console.log(`Generated public URL: ${urlData.publicUrl}`);
             }
           } catch (err) {
+            console.error(
+              `Unexpected error during upload attempt ${retries + 1}:`,
+              err
+            );
             uploadError = err;
             retries++;
             if (retries < 2)
@@ -188,20 +203,28 @@ export async function uploadCarImages(files: File[]): Promise<string[]> {
 
         // If all retries failed, throw the last error
         if (!uploadSuccess) {
+          console.error("All upload attempts failed for file:", file.name);
           throw uploadError || new Error(`Failed to upload file: ${file.name}`);
         }
       } catch (fileError) {
+        console.error("Error processing file:", fileError);
         // We'll continue with other files and throw at the end if needed
       }
     }
 
+    console.log(`Successfully uploaded ${urls.length} files`);
     return urls;
   } catch (error) {
+    console.error("Critical error in uploadCarImages:", error);
+
     // If we have a critical error but some files were uploaded, try to clean them up
     if (uploadedPaths.length > 0 && urls.length === 0) {
+      console.log("Attempting to clean up partially uploaded files");
       try {
         await supabase.storage.from("car-images").remove(uploadedPaths);
+        console.log("Cleanup successful");
       } catch (cleanupError) {
+        console.error("Cleanup failed:", cleanupError);
         // Cleanup failed, but we'll continue
       }
     }

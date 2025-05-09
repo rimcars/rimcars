@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Trash, Upload, Loader2 } from "lucide-react";
 import React from "react";
-import { uploadListingImages } from "../../actions";
 
 // Define image types with status flags for better tracking
 interface ImageItem {
@@ -60,9 +59,15 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         }));
 
         setImages((prev) => [...prev, ...newImages]);
+
+        // Call onChange if provided, to notify parent component that images were added
+        if (newImages.length > 0 && onChange) {
+          onChange("local-file-added");
+        }
+
         return Promise.resolve();
       },
-      []
+      [onChange]
     );
 
     // Remove an image (either local or uploaded)
@@ -89,7 +94,7 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
       [onRemove]
     );
 
-    // Upload all local files using server action
+    // Upload all local files using API endpoint
     const uploadAllFiles = useCallback(
       async (silentMode = true): Promise<string[]> => {
         // Get only local files that need uploading
@@ -110,7 +115,7 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         );
 
         try {
-          // Create FormData for the server action
+          // Create FormData for the API request
           const formData = new FormData();
           const filesToUpload = localImages
             .filter((img) => img.file)
@@ -120,11 +125,17 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             formData.append("files", file);
           });
 
-          // Call the server action to upload files
-          const { error, urls } = await uploadListingImages(formData);
+          // Simple fetch call to the API endpoint
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-          if (error) {
-            toast.error(error);
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Upload failed (${response.status}):`, errorText);
+            toast.error("فشل في رفع الصور");
+
             // Reset status back to local on error
             setImages((prev) =>
               prev.map((img) =>
@@ -133,9 +144,27 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
                   : img
               )
             );
+            setLoading(false);
             return [];
           }
 
+          const result = await response.json();
+
+          if (result.error) {
+            toast.error(result.error || "فشل في رفع الصور");
+            // Reset status back to local on error
+            setImages((prev) =>
+              prev.map((img) =>
+                img.status === "uploading"
+                  ? { ...img, status: "local" as const }
+                  : img
+              )
+            );
+            setLoading(false);
+            return [];
+          }
+
+          const { urls } = result;
           // Get an array to track uploaded URLs
           const uploadedUrls: string[] = [];
 
@@ -177,8 +206,10 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             }
           }
 
+          setLoading(false);
           return uploadedUrls;
         } catch (error) {
+          console.error("Error in uploadAllFiles:", error);
           toast.error("فشل في رفع الصور");
 
           // Reset status back to local
@@ -190,9 +221,8 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
             )
           );
 
-          return [];
-        } finally {
           setLoading(false);
+          return [];
         }
       },
       [images, onChange]

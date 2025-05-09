@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import type { Tables } from "@/types/database.types";
 
 export async function isUserExiste(email: string) {
   const supabase = await createClient();
@@ -17,7 +18,6 @@ export async function isUserExiste(email: string) {
   return null;
 }
 
-
 export async function getUser() {
   const supabase = await createClient();
   const {
@@ -31,12 +31,11 @@ export async function getUser() {
 
   if (user) {
     // try to get the user from the database
-    const { data , error: userError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
+    const { data, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
 
     if (userError) {
       console.log("error from the database", userError);
@@ -49,8 +48,6 @@ export async function getUser() {
 
   return null;
 }
-
-
 
 export async function signOut() {
   const supabase = await createClient();
@@ -200,4 +197,27 @@ export async function updateUserProfile(data: any, userId?: string) {
     console.error(`Error updating profile:`, error);
     return { error: `Failed to update profile` };
   }
+}
+
+// Fetch the latest 10 listed cars
+export async function getLatestListings(): Promise<Tables<"listings">[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (error) {
+    console.error("Error fetching latest listings:", error);
+    return [];
+  }
+
+  // Ensure make, model, and car_name are always strings
+  return (data || []).map((car) => ({
+    ...car,
+    make: car.make ?? "",
+    model: car.model ?? "",
+    car_name: car.car_name ?? "",
+  }));
 }

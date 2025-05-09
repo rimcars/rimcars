@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -28,14 +28,20 @@ import { Listing, listingFormSchema } from "../../types";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { updateUserProfile } from "@/app/actions";
 
 // Define the props type
 type ListingFormProps = {
   initialData: Partial<Listing> | null;
   action: (formData: FormData) => Promise<{ error: string | null; data?: any }>;
+  currentUser?: any;
 };
 
-export default function ListingForm({ initialData, action }: ListingFormProps) {
+export default function ListingForm({
+  initialData,
+  action,
+  currentUser,
+}: ListingFormProps) {
   const router = useRouter();
   const imageUploadRef = useRef<ImageUploadRef>(null);
   const [loading, setLoading] = useState(false);
@@ -53,13 +59,18 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
       old_price: initialData?.old_price || undefined,
       make: initialData?.make || "",
       model: initialData?.model || "",
-      year: initialData?.year || undefined,
-      mileage: initialData?.mileage || undefined,
+      year: initialData?.year || new Date().getFullYear(),
+      mileage: initialData?.mileage || 0,
       location: initialData?.location || "",
       condition: initialData?.condition || "used",
       transmission: initialData?.transmission || "automatic",
       fuel_type: initialData?.fuel_type || "petrol",
       images: initialData?.images || [],
+      seller_name: initialData?.seller_name || currentUser?.name || "",
+      seller_phone:
+        initialData?.seller_phone ||
+        currentUser?.phone_number?.toString() ||
+        "",
     },
   });
 
@@ -76,10 +87,60 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
     }
   }, []);
 
+  // Handler for when images change in the component
+  const handleImageChange = useCallback(() => {
+    // Clear validation error if images exist
+    setValidationError(null);
+  }, []);
+
   async function onSubmit(values: z.infer<typeof listingFormSchema>) {
     try {
       // Don't allow submission in loading state
       if (loading) return;
+
+      // Validate required fields
+      let hasError = false;
+
+      // Check required fields manually
+      if (!values.make || values.make.trim() === "") {
+        form.setError("make", { message: "الشركة المصنعة مطلوبة" });
+        hasError = true;
+      }
+
+      if (!values.model || values.model.trim() === "") {
+        form.setError("model", { message: "الموديل مطلوب" });
+        hasError = true;
+      }
+
+      if (!values.location || values.location.trim() === "") {
+        form.setError("location", { message: "الموقع مطلوب" });
+        hasError = true;
+      }
+
+      if (!values.mileage) {
+        form.setError("mileage", { message: "عدد الكيلومترات مطلوب" });
+        hasError = true;
+      }
+
+      if (!values.year) {
+        form.setError("year", { message: "سنة الصنع مطلوبة" });
+        hasError = true;
+      }
+
+      if (!values.seller_name || values.seller_name.trim() === "") {
+        form.setError("seller_name", { message: "اسم البائع مطلوب" });
+        hasError = true;
+      }
+
+      if (!values.seller_phone || values.seller_phone.trim() === "") {
+        form.setError("seller_phone", { message: "رقم الهاتف مطلوب" });
+        hasError = true;
+      }
+
+      if (hasError) {
+        toast.error("يرجى تصحيح الأخطاء قبل الإرسال");
+        return;
+      }
 
       // Get image status directly from the ref
       const hasLocalFiles = imageUploadRef.current?.hasLocalFiles() || false;
@@ -88,7 +149,11 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
       // Manual validation for images
       if (currentImages.length === 0 && !hasLocalFiles) {
         setValidationError("يجب إضافة صورة واحدة على الأقل");
+        toast.error("يجب إضافة صورة واحدة على الأقل");
         return;
+      } else {
+        // Clear any existing validation error
+        setValidationError(null);
       }
 
       // Start loading
@@ -97,15 +162,25 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
       try {
         // Upload any pending local images
         if (hasLocalFiles && imageUploadRef.current) {
-          // This now returns the array of newly uploaded URLs
-          await imageUploadRef.current.uploadAllFiles();
+          try {
+            console.log("Starting image upload process");
+            // This now returns the array of newly uploaded URLs
+            const uploadedUrls = await imageUploadRef.current.uploadAllFiles();
+            console.log("Image upload completed successfully", uploadedUrls);
 
-          // Small delay to ensure state is properly updated
-          await new Promise((resolve) => setTimeout(resolve, 100));
+            // Small delay to ensure state is properly updated
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          } catch (uploadError) {
+            console.error("Error uploading images:", uploadError);
+            toast.error("فشل في رفع الصور، يرجى المحاولة مرة أخرى");
+            setLoading(false);
+            return;
+          }
         }
 
         // Get the final list of all images from the component AFTER upload
         const allImages = imageUploadRef.current?.getImagesForForm() || [];
+        console.log("All images for form submission:", allImages);
 
         if (allImages.length === 0) {
           toast.error("فشل في رفع الصور");
@@ -124,27 +199,47 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
           }
         });
 
+        console.log("Submitting form data");
         // Submit the form
-        const result = await action(formData);
+        try {
+          // Update user phone number if it's different or missing
+          if (currentUser && values.seller_phone) {
+            const currentPhone = currentUser.phone_number?.toString() || "";
+            if (!currentPhone || currentPhone !== values.seller_phone) {
+              await updateUserProfile({ phone_number: values.seller_phone });
+            }
+          }
 
-        if (result.error) {
-          toast.error(result.error);
+          // Submit the form for listing
+          const result = await action(formData);
+          console.log("Form submission result:", result);
+
+          if (result.error) {
+            toast.error(result.error);
+            setLoading(false);
+            return;
+          }
+
+          // Show success toast
+          toast.success(
+            initialData ? "تم تحديث السيارة بنجاح" : "تمت إضافة السيارة بنجاح"
+          );
+
+          // Redirect to listings page
+          router.push("/dashboard/listings");
+        } catch (submitError) {
+          console.error("Error submitting form:", submitError);
+          toast.error("حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى");
           setLoading(false);
-          return;
         }
-
-        toast.success(
-          initialData ? "تم تحديث السيارة بنجاح" : "تم إضافة السيارة بنجاح"
-        );
-
-        // Redirect to listings page after successful submission
-        router.push("/dashboard/listings");
-      } catch (error) {
-        toast.error("حدث خطأ أثناء معالجة الصور أو حفظ البيانات");
+      } catch (err) {
+        console.error("General error in form submission:", err);
+        toast.error("حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى");
         setLoading(false);
       }
     } catch (error) {
-      toast.error("حدث خطأ أثناء حفظ البيانات");
+      console.error("Unexpected error:", error);
+      toast.error("حدث خطأ غير متوقع");
       setLoading(false);
     }
   }
@@ -170,7 +265,9 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="car_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>اسم السيارة</FormLabel>
+                    <FormLabel>
+                      اسم السيارة <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
@@ -188,12 +285,15 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>الموقع</FormLabel>
+                    <FormLabel>
+                      الموقع <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
                         placeholder="مثال: الرياض، حي السلام"
                         {...field}
+                        value={field.value === null ? "" : field.value}
                       />
                     </FormControl>
                     <FormMessage />
@@ -206,7 +306,9 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>السعر</FormLabel>
+                    <FormLabel>
+                      السعر <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -214,7 +316,7 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                         {...field}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? Number(e.target.value) : ""
+                            e.target.value ? Number(e.target.value) : 0
                           )
                         }
                       />
@@ -312,12 +414,15 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="make"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>الشركة المصنعة</FormLabel>
+                    <FormLabel>
+                      الشركة المصنعة <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
                         placeholder="مثال: مرسيدس، تويوتا"
                         {...field}
+                        value={field.value === null ? "" : field.value}
                       />
                     </FormControl>
                     <FormMessage />
@@ -330,12 +435,15 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="model"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>الموديل</FormLabel>
+                    <FormLabel>
+                      الموديل <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
                         placeholder="مثال: كامري، C200"
                         {...field}
+                        value={field.value === null ? "" : field.value}
                       />
                     </FormControl>
                     <FormMessage />
@@ -348,17 +456,21 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="year"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>سنة الصنع</FormLabel>
+                    <FormLabel>
+                      سنة الصنع <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         disabled={loading}
                         placeholder="مثال: 2023"
                         {...field}
-                        value={field.value || ""}
+                        value={field.value === null ? "" : field.value}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined
+                            e.target.value
+                              ? Number(e.target.value)
+                              : new Date().getFullYear()
                           )
                         }
                       />
@@ -373,17 +485,19 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                 name="mileage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>عدد الكيلومترات</FormLabel>
+                    <FormLabel>
+                      عدد الكيلومترات <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         disabled={loading}
                         placeholder="مثال: 50000"
                         {...field}
-                        value={field.value || ""}
+                        value={field.value === null ? "" : field.value}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined
+                            e.target.value ? Number(e.target.value) : 0
                           )
                         }
                       />
@@ -458,6 +572,55 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
           </CardContent>
         </Card>
 
+        {/* Seller Information Section */}
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-medium mb-4">معلومات البائع</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="seller_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      اسم البائع <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="الاسم الكامل للبائع"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="seller_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      رقم الهاتف <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="مثال: 05XXXXXXXX"
+                        {...field}
+                        type="tel"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Images Section */}
         <Card>
           <CardContent className="pt-6">
@@ -476,6 +639,7 @@ export default function ListingForm({ initialData, action }: ListingFormProps) {
                         // We don't need to update form state here
                         // The images are managed within the ImageUpload component
                         // and retrieved at form submission time
+                        handleImageChange();
                       }}
                       onRemove={(url: string) => {
                         // We don't need to update form state here

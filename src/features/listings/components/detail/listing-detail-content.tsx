@@ -3,6 +3,7 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import ListingForm from "./listing-form";
 import BackButton from "./back-button";
+import { getUser } from "@/app/actions";
 
 interface ListingDetailContentProps {
   listingId: string;
@@ -19,6 +20,7 @@ export default async function ListingDetailContent({
   // Server-side data fetching
   const isNew = listingId === "new";
   let listingData = null;
+  const currentUser = await getUser();
 
   if (!isNew) {
     const result = await getListingById(listingId);
@@ -42,7 +44,11 @@ export default async function ListingDetailContent({
         </div>
       </div>
       <Separator />
-      <ListingForm initialData={listingData} action={formAction} />
+      <ListingForm
+        initialData={listingData}
+        action={formAction}
+        currentUser={currentUser}
+      />
     </div>
   );
 }
