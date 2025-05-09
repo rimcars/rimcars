@@ -2,7 +2,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import ThemeToggle from "@/components/layout/ThemeToggle/theme-toggle";
 import LogoutButton from "@/components/logout-button";
 import { getUser } from "@/app/actions";
-import Hero from "@/components/hero";
+import Link from "next/link";
 export default async function Home() {
   const user = await getUser();
   return (
@@ -14,6 +14,8 @@ export default async function Home() {
       <ThemeToggle />
       
       {user && <LogoutButton />}
+
+      <Link href="/dashboard" className="block px-4 py-2 rounded-md hover:bg-accent">Dashboard</Link>
       
     </section>
     

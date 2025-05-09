@@ -7,12 +7,21 @@ import AddListingButton from "@/features/listings/components/list/add-listing-bu
 import EmptyState from "@/features/listings/components/list/empty-state";
 import ListingsGrid from "@/features/listings/components/list/listings-grid";
 import { Listing } from "@/features/listings/types";
+import { getUser } from "@/app/actions";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Dashboard : Listings",
 };
 
 export default async function ListingsPage() {
+  // Check authentication first
+  const user = await getUser();
+  if (!user) {
+    // If not logged in, redirect to login page
+    redirect("/login?redirect=/dashboard/listings");
+  }
+
   // Fetch listings directly on the server
   const { data, error } = await getUserListings();
 
