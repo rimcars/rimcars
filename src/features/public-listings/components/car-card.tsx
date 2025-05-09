@@ -55,15 +55,15 @@ export function CarCard({ car, isFavorite, onToggleFavorite }: CarCardProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2 text-sm">
             <Gauge className="h-4 w-4 text-muted-foreground" />
-            <span>{car.speed} كم/س</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Milestone className="h-4 w-4 text-muted-foreground" />
             <span>
               {car.mileage && car.mileage > 0
                 ? `${car.mileage.toLocaleString()} كم`
                 : "جديد"}
             </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <Milestone className="h-4 w-4 text-muted-foreground" />
+            <span>{car.year ? car.year : "غير محدد"}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Fuel className="h-4 w-4 text-muted-foreground" />

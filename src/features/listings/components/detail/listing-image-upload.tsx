@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Trash, Loader2 } from "lucide-react";
 import React from "react";
-import { uploadListingImages } from "../../actions";
+import { uploadCarImages } from "@/utils/car-images";
 
 interface ImageUploadProps {
   value: string[];
@@ -86,57 +86,49 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(
         setLoading(true);
 
         try {
-          // Create FormData for the server action
-          const formData = new FormData();
+          // Extract files from local files array
+          const filesToUpload = localFiles.map((item) => item.file);
 
-          console.log("Preparing files for upload:", localFiles.length);
-          localFiles.forEach(({ file }, index) => {
-            console.log(
-              `Adding file ${index + 1}/${localFiles.length} to formData:`,
-              file.name,
-              file.size
-            );
-            formData.append("files", file);
-          });
+          console.log("Preparing files for upload:", filesToUpload.length);
 
-          // Call the server action to upload files
-          console.log("Calling uploadListingImages server action");
-          const { error, urls } = await uploadListingImages(formData);
+          try {
+            // Call the utility function to upload files
+            console.log("Calling uploadCarImages function");
+            const urls = await uploadCarImages(filesToUpload);
 
-          if (error) {
-            console.error("Server action returned error:", error);
-            toast.error(error);
+            if (!urls || urls.length === 0) {
+              console.error("No URLs returned from upload function");
+              toast.error("لم يتم استلام روابط الصور من الخادم");
+              return;
+            }
+
+            console.log("Upload successful, received URLs:", urls);
+
+            // Add new URLs to the form
+            console.log("Adding URLs to form:", urls.length);
+
+            // We'll use a different approach to update the parent component
+            const updatedUrls: string[] = [];
+            urls.forEach((url) => {
+              console.log("Adding URL to form:", url);
+              updatedUrls.push(url);
+              // Call onChange for each URL to update the parent component
+              onChange(url);
+            });
+
+            console.log("All URLs added to parent component");
+
+            // Clear local files after successful upload
+            setLocalFiles([]);
+
+            // Only show success toast if not in silent mode
+            if (!silentMode) {
+              toast.success(`تم رفع ${urls.length} صورة بنجاح`);
+            }
+          } catch (uploadError) {
+            console.error("Error calling uploadCarImages:", uploadError);
+            toast.error("فشل في رفع الصور");
             return;
-          }
-
-          console.log("Upload successful, received URLs:", urls);
-
-          if (!urls || urls.length === 0) {
-            console.error("No URLs returned from server action");
-            toast.error("لم يتم استلام روابط الصور من الخادم");
-            return;
-          }
-
-          // Add new URLs to the form
-          console.log("Adding URLs to form:", urls.length);
-
-          // We'll use a different approach to update the parent component
-          const updatedUrls: string[] = [];
-          urls.forEach((url) => {
-            console.log("Adding URL to form:", url);
-            updatedUrls.push(url);
-            // Call onChange for each URL to update the parent component
-            onChange(url);
-          });
-
-          console.log("All URLs added to parent component");
-
-          // Clear local files after successful upload
-          setLocalFiles([]);
-
-          // Only show success toast if not in silent mode
-          if (!silentMode) {
-            toast.success(`تم رفع ${urls.length} صورة بنجاح`);
           }
         } catch (error) {
           console.error("Error uploading images:", error);
