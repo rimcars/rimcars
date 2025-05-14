@@ -4,7 +4,7 @@ import Header from "@/components/header";
 import SearchBar from "@/features/home/components/search-bar";
 import FeaturedCars from "@/features/home/components/featured-cars";
 import Testimonials from "@/features/home/components/testimonials";
-import Footer from "@/components/footer";
+import Footer from "@/components/footer-section";
 import BrandSlider from "@/components/brand-slider";
 import { TestimonialsSection } from "@/features/home/components/testimonals";
 import { testimonialsSectionData } from "@/features/home/components/testimonials-data";
@@ -34,7 +34,7 @@ export default async function Home() {
           testimonials={testimonialsSectionData.testimonials}
         />
       </main>
-      {/* <Footer /> */}
+       <Footer /> 
     </div>
   );
 }

@@ -7,11 +7,13 @@ const carBrandLogos = [
   { src: "/logos/audi.png", alt: "Audi Logo" },
   { src: "/logos/bmw.png", alt: "BMW Logo" },
   { src: "/logos/chevrolet.png", alt: "Chevrolet Logo" },
+  
   { src: "/logos/ford.png", alt: "Ford Logo" },
   { src: "/logos/honda.png", alt: "Honda Logo" },
   { src: "/logos/mercedes.png", alt: "Mercedes Logo" },
   { src: "/logos/toyota.png", alt: "Toyota Logo" },
   { src: "/logos/volkswagen.png", alt: "Volkswagen Logo" },
+ 
 ];
 
 export function BrandSlider() {

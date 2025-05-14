@@ -23,6 +23,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { UiCar } from "../types";
+import { BasicShareModal } from "./basic-share-modal";
 
 interface CarDetailsClientProps {
   car: UiCar;
@@ -34,6 +35,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
 
   const [selectedImage, setSelectedImage] = useState(gallery[0]);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     // التحقق مما إذا كانت السيارة في المفضلة
@@ -90,6 +92,7 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
             variant="outline"
             size="sm"
             className="flex items-center gap-1"
+            onClick={() => setIsShareModalOpen(true)}
           >
             <Share2 className="h-4 w-4" />
             مشاركة
@@ -318,6 +321,13 @@ export function CarDetailsClient({ car }: CarDetailsClientProps) {
           </div>
         </div>
       </div>
+
+      <BasicShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        url={typeof window !== 'undefined' ? window.location.href : ''}
+        title={`${car.brand} ${car.name} - ${car.price.toLocaleString()} MRU`}
+      />
     </div>
   );
 }

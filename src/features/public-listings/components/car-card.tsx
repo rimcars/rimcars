@@ -16,7 +16,7 @@ interface CarCardProps {
 
 export function CarCard({ car, isFavorite, onToggleFavorite }: CarCardProps) {
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg">
+    <Card className="overflow-hidden transition-all hover:shadow-lg bg-background">
       <div className="relative h-48 w-full overflow-hidden">
         <Image
           src={car.image || "/placeholder.svg"}
