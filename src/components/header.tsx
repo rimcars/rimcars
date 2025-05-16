@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { signOut } from "@/app/actions";
+import { Heart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,14 +41,23 @@ export default function Header({ user, userDetails }: HeaderProps) {
       toast.error("فشل تسجيل الخروج");
     }
   };
+  const Logo = ({ className }: { className?: string }) => {
+    return (
+      <Image
+        src="/rimcars-logo.png"
+        alt="RIMCARS Logo"
+        width={120}
+        height={40}
+        className={cn("h-auto w-auto", className)}
+      />
+    );
+  };
   return (
     <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold tracking-tight">
-              سيارات الريم
-            </span>
+             <Logo/>
           </Link>
           <nav className="hidden md:flex gap-6">
             {navItems.map((item) => (
@@ -58,6 +69,15 @@ export default function Header({ user, userDetails }: HeaderProps) {
                 {item.name}
               </Link>
             ))}
+            {user && (
+              <Link 
+                href="/favorites" 
+                className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1"
+              >
+                <Heart className="h-4 w-4" />
+                <span>المفضلة</span>
+              </Link>
+            )}
           </nav>
         </div>
 
@@ -88,15 +108,21 @@ export default function Header({ user, userDetails }: HeaderProps) {
                 )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="text-right">
+                {user.role === "seller" && (
+                  <>
+                    <DropdownMenuItem>
+                      <Link href="/dashboard" className="w-full">لوحة التحكم</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/dashboard/settings" className="w-full">الإعدادات</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuItem>
-                  <Link href="/dashboard" className="w-full">
-                    لوحة التحكم
-                  </Link>
+                  <Link href="/profile" className="w-full">الملف الشخصي</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href="/dashboard/settings" className="w-full">
-                    الإعدادات
-                  </Link>
+                  <Link href="/favorites" className="w-full">المفضلة</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}

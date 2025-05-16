@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
 import ThemeProvider from './ThemeToggle/theme-provider';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
+  const [queryClient] = React.useState(() => new QueryClient());
 
   // useEffect only runs on the client, so now we can safely show the UI
   React.useEffect(() => {
@@ -16,14 +18,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeProvider
-      attribute='class'
-      defaultTheme='system'
-      enableSystem
-      disableTransitionOnChange
-      storageKey='theme-preference'
-    >
-      {children}
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute='class'
+        defaultTheme='system'
+        enableSystem
+        disableTransitionOnChange
+        storageKey='theme-preference'
+      >
+        {children}
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

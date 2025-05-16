@@ -15,6 +15,14 @@ interface CarCardProps {
 }
 
 export function CarCard({ car, isFavorite, onToggleFavorite }: CarCardProps) {
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("Heart button clicked in CarCard for car:", car.id);
+    console.log("Current favorite status:", isFavorite);
+    onToggleFavorite(car.id);
+  };
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg bg-background">
       <div className="relative h-48 w-full overflow-hidden">
@@ -33,11 +41,7 @@ export function CarCard({ car, isFavorite, onToggleFavorite }: CarCardProps) {
           variant="ghost"
           size="icon"
           className="absolute top-2 left-2 bg-white/80 hover:bg-white/90 text-primary rounded-full"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onToggleFavorite(car.id);
-          }}
+          onClick={handleFavoriteClick}
         >
           <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary" : ""}`} />
           <span className="sr-only">Add to favorites</span>
