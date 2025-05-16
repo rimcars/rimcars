@@ -36,19 +36,20 @@ interface ProfileFormSectionProps {
     update_error: string;
     update_profile: string;
   };
-  validationMessages: {
-    min_length: (value: string) => string;
-    max_length: (value: string) => string;
-    required: string;
-  };
 }
 
 export function ProfileFormSection({
   user,
   translations,
-  validationMessages,
 }: ProfileFormSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Validation messages defined inside the client component
+  const validationMessages = {
+    min_length: (value: string) => `يجب أن يكون على الأقل ${value} أحرف`,
+    max_length: (value: string) => `يجب ألا يزيد عن ${value} حرفًا`,
+    required: "هذا الحقل مطلوب"
+  };
 
   // Split the name into first name and last name (if possible)
   const nameParts = user.name ? user.name.split(" ") : ["", ""];

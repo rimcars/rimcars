@@ -221,3 +221,70 @@ export async function getLatestListings(): Promise<Tables<"listings">[]> {
     car_name: car.car_name ?? "",
   }));
 }
+
+// Fetch user favorites
+export async function getUserFavorites() {
+  const user = await getCurrentUser();
+  if (!user) return { error: "User not authenticated", favorites: [] };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("car_id")
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Error fetching favorites:", error);
+    return { error: error.message, favorites: [] };
+  }
+
+  const favorites = data
+    .map((fav) => fav.car_id)
+    .filter((id) => !!id);
+
+  return { favorites, error: null };
+}
+
+// Add a car to favorites
+export async function addToFavorites(carId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "User not authenticated", success: false };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("favorites")
+    .insert([{ user_id: user.id, car_id: carId }]);
+
+  if (error) {
+    console.error("Error adding favorite:", error);
+    return { error: error.message, success: false };
+  }
+
+  return { success: true, error: null };
+}
+
+// Remove a car from favorites
+export async function removeFromFavorites(carId: string) {
+  const user = await getCurrentUser();
+  if (!user) return { error: "User not authenticated", success: false };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("favorites")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("car_id", carId);
+
+  if (error) {
+    console.error("Error removing favorite:", error);
+    return { error: error.message, success: false };
+  }
+
+  return { success: true, error: null };
+}
+
+// Check if user is authenticated (for client use)
+export async function isUserAuthenticated() {
+  const user = await getCurrentUser();
+  return { isAuthenticated: !!user, userId: user?.id };
+}
