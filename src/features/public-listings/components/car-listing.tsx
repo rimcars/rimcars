@@ -185,9 +185,7 @@ export function CarListing({ initialCars }: CarListingProps) {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">المركبات المميزة</h2>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={checkAuth}>
-              Check Auth
-            </Button>
+            
             <Button
               variant="outline"
               className="md:hidden flex items-center gap-2"

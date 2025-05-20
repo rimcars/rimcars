@@ -59,7 +59,7 @@ export default function Footer() {
               <a href="#" className="block transition-colors hover:text-primary">
                 الرئيسية
               </a>
-              <a href="#" className="block transition-colors hover:text-primary">
+              <a href="/about" className="block transition-colors hover:text-primary">
                 من نحن
               </a>
               <a href="#" className="block transition-colors hover:text-primary">
@@ -138,18 +138,7 @@ export default function Footer() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="flex items-center space-x-2">
-              <Sun className="h-4 w-4" />
-              <Switch
-                id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-              />
-              <Moon className="h-4 w-4" />
-              <Label htmlFor="dark-mode" className="sr-only">
-                Toggle dark mode
-              </Label>
-            </div>
+            
           </div>
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
