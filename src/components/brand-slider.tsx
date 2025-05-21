@@ -7,13 +7,17 @@ const carBrandLogos = [
   { src: "/logos/audi.png", alt: "Audi Logo" },
   { src: "/logos/bmw.png", alt: "BMW Logo" },
   { src: "/logos/chevrolet.png", alt: "Chevrolet Logo" },
-  
+  { src: "/logos/land-rover.png", alt: "Land Rover Logo" },
+  { src: "/logos/aston-martin.png", alt: "Aston Martin Logo" },
+  { src: "/logos/bentley.png", alt: "Bentley Logo" },
+  { src: "/logos/nissan.png", alt: "Nissan Logo" },
+  { src: "/logos/mitsubishi.png", alt: "Mitsubishi Logo" },
+  { src: "/logos/lexus.png", alt: "Lexus Logo" },
   { src: "/logos/ford.png", alt: "Ford Logo" },
   { src: "/logos/honda.png", alt: "Honda Logo" },
   { src: "/logos/mercedes.png", alt: "Mercedes Logo" },
   { src: "/logos/toyota.png", alt: "Toyota Logo" },
   { src: "/logos/volkswagen.png", alt: "Volkswagen Logo" },
- 
 ];
 
 export function BrandSlider() {
@@ -24,8 +28,8 @@ export function BrandSlider() {
           <div className="md:max-w-44 md:border-r md:pr-6">
             <p className="text-end text-sm">أفضل العلامات التجارية</p>
           </div>
-          <div className="relative py-6 md:w-[calc(100%-11rem)]">
-            <InfiniteSlider speedOnHover={20} speed={40} gap={112}>
+          <div className="relative py-6 w-full">
+            <InfiniteSlider speedOnHover={20} speed={40} gap={32}>
               {carBrandLogos.map((logo) => (
                 <div className="flex" key={logo.src}>
                   <Image
@@ -33,7 +37,7 @@ export function BrandSlider() {
                     src={logo.src}
                     alt={logo.alt}
                     height={48}
-                    width={120}
+                    width={80}
                     priority={false}
                   />
                 </div>

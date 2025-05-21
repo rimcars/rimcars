@@ -56,18 +56,13 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-semibold">روابط سريعة</h3>
             <nav className="space-y-2 text-sm">
-              <a href="#" className="block transition-colors hover:text-primary">
+              <a href="/" className="block transition-colors hover:text-primary">
                 الرئيسية
               </a>
               <a href="/about" className="block transition-colors hover:text-primary">
                 من نحن
               </a>
-              <a href="#" className="block transition-colors hover:text-primary">
-                الخدمات
-              </a>
-              <a href="#" className="block transition-colors hover:text-primary">
-                المنتجات
-              </a>
+            
               <a href="#" className="block transition-colors hover:text-primary">
                 اتصل بنا
               </a>
@@ -149,7 +144,7 @@ export default function Footer() {
             <a href="#" className="transition-colors hover:text-primary">
               سياسة الخصوصية
             </a>
-            <a href="#" className="transition-colors hover:text-primary">
+            <a href="/terms" className="transition-colors hover:text-primary">
               شروط الخدمة
             </a>
             <a href="#" className="transition-colors hover:text-primary">
