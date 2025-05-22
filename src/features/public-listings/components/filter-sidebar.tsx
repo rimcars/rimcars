@@ -12,6 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { UiCar } from "../types";
+import { Search } from "lucide-react";
 
 interface FilterSidebarProps {
   onFilterChange: (filteredCars: UiCar[]) => void;
@@ -149,7 +150,7 @@ export function FilterSidebar({ onFilterChange, allCars }: FilterSidebarProps) {
         <Button
           variant="outline"
           size="sm"
-          className="w-full"
+          className="w-full bg-[#0082d6] text-white rounded-full hover:bg-[#005fa3] border-none shadow-none"
           onClick={resetFilters}
         >
           إعادة ضبط الفلاتر
@@ -161,10 +162,13 @@ export function FilterSidebar({ onFilterChange, allCars }: FilterSidebarProps) {
           البحث عن ماركة أو موديل
         </label>
         <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <Search className="w-5 h-5" />
+          </span>
           <input
             id="search"
             type="text"
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="w-full rounded-full border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             placeholder="مثال: مرسيدس، تويوتا كامري"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -187,6 +191,25 @@ export function FilterSidebar({ onFilterChange, allCars }: FilterSidebarProps) {
                 step={1000}
                 value={priceRange}
                 onValueChange={setPriceRange}
+                className="
+                  h-3
+                  [&_[data-slot=track]]:bg-[#e6f0fa]
+                  [&_[data-slot=track]]:h-1
+                  [&_[data-slot=track]]:rounded-full
+                  [&_[data-slot=range]]:bg-[#0057b8]
+                  [&_[data-slot=range]]:h-1
+                  [&_[data-slot=range]]:rounded-full
+                  [&_[data-slot=thumb]]:w-5
+                  [&_[data-slot=thumb]]:h-5
+                  [&_[data-slot=thumb]]:bg-[#0057b8]
+                  [&_[data-slot=thumb]]:border-2
+                  [&_[data-slot=thumb]]:border-white
+                  [&_[data-slot=thumb]]:shadow
+                  [&_[data-slot=thumb]]:rounded-full
+                  [&_[data-slot=thumb]]:focus:outline-none
+                  [&_[data-slot=thumb]]:focus:ring-2
+                  [&_[data-slot=thumb]]:focus:ring-[#0057b8]
+                "
               />
               <div className="flex items-center justify-between">
                 <span className="text-sm">
