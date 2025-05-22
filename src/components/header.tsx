@@ -15,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 
 interface HeaderProps {
   user: User | null;
@@ -55,7 +57,7 @@ export default function Header({ user, userDetails }: HeaderProps) {
   return (
     <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2 md:gap-10">
+        <div className="flex items-center gap-2 md:gap-10 ml-auto">
           <Link href="/" className="flex items-center space-x-2">
              <Logo/>
           </Link>
@@ -79,6 +81,70 @@ export default function Header({ user, userDetails }: HeaderProps) {
               </Link>
             )}
           </nav>
+          {/* Mobile Hamburger */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="p-2">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-64">
+                <div className="flex flex-col h-full">
+                  
+                  <nav className="flex flex-col gap-2 p-4">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="text-base font-medium py-2 px-2 rounded hover:bg-muted transition-colors"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                    {user && (
+                      <Link 
+                        href="/favorites" 
+                        className="text-base font-medium py-2 px-2 rounded hover:bg-muted flex items-center gap-1"
+                      >
+                        <Heart className="h-4 w-4" />
+                        <span>المفضلة</span>
+                      </Link>
+                    )}
+                  </nav>
+                  <div className="mt-auto p-4 border-t flex flex-col gap-2">
+                    {!user && (
+                      <Link href="/login">
+                        <Button className="w-full">تسجيل الدخول</Button>
+                      </Link>
+                    )}
+                    {user && (
+                      <>
+                        {user.role === "seller" && (
+                          <>
+                            <Link href="/dashboard">
+                              <Button variant="outline" className="w-full mb-2">لوحة التحكم</Button>
+                            </Link>
+                            <Link href="/dashboard/settings">
+                              <Button variant="outline" className="w-full mb-2">الإعدادات</Button>
+                            </Link>
+                          </>
+                        )}
+                        <Link href="/profile">
+                          <Button variant="outline" className="w-full mb-2">الملف الشخصي</Button>
+                        </Link>
+                        <Link href="/favorites">
+                          <Button variant="outline" className="w-full mb-2">المفضلة</Button>
+                        </Link>
+                        <Button onClick={handleLogout} variant="destructive" className="w-full">تسجيل الخروج</Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
