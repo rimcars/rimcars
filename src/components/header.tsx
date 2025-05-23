@@ -90,7 +90,7 @@ export default function Header({ user, userDetails }: HeaderProps) {
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-64">
+              <SheetContent side="left" className="p-0 w-64 pt-8">
                 <div className="flex flex-col h-full">
                   
                   <nav className="flex flex-col gap-2 p-4">

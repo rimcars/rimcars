@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { CarCard } from "./car-card";
 import { FilterSidebar } from "./filter-sidebar";
 import { Button } from "@/components/ui/button";
-import { Filter, X, Heart } from "lucide-react";
+import { Filter, X, Heart, Search } from "lucide-react";
 import { UiCar } from "../types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
@@ -13,6 +13,7 @@ import {
   addToFavorites, 
   removeFromFavorites 
 } from "@/app/actions";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface CarListingProps {
   initialCars: UiCar[];
@@ -20,6 +21,7 @@ interface CarListingProps {
 
 export function CarListing({ initialCars }: CarListingProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredCars, setFilteredCars] = useState<UiCar[]>(initialCars);
   const [allCars] = useState<UiCar[]>(initialCars);
   const [localFavorites, setLocalFavorites] = useState<string[]>([]);
@@ -118,10 +120,24 @@ export function CarListing({ initialCars }: CarListingProps) {
     }
   });
 
-  // Handle filter changes
+  // Update handleFilterChange to also filter by searchTerm
   const handleFilterChange = useCallback((filtered: UiCar[]) => {
-    setFilteredCars(filtered);
-  }, []);
+    let result = filtered;
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      result = result.filter(
+        (car) =>
+          car.name.toLowerCase().includes(searchLower) ||
+          car.brand.toLowerCase().includes(searchLower)
+      );
+    }
+    setFilteredCars(result);
+  }, [searchTerm]);
+
+  // Add effect to filter when searchTerm changes
+  useEffect(() => {
+    handleFilterChange(allCars);
+  }, [searchTerm, allCars, handleFilterChange]);
 
   // Toggle favorite status for a car
   const toggleFavorite = useCallback((carId: string) => {
@@ -182,63 +198,55 @@ export function CarListing({ initialCars }: CarListingProps) {
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">المركبات المميزة</h2>
-          <div className="flex gap-2">
-            
+        {/* Mobile search bar with filter icon */}
+        <div className="block md:hidden mb-4">
+          <div className="relative flex items-center w-full">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Search className="w-5 h-5" />
+            </span>
+            <input
+              type="text"
+              placeholder="ابحث عن ماركة أو موديل"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full rounded-full pl-10 pr-12 py-2 text-sm border border-input bg-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            />
             <Button
-              variant="outline"
-              className="md:hidden flex items-center gap-2"
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full md:hidden"
               onClick={() => setIsFilterOpen(true)}
+              aria-label="عرض الفلاتر"
             >
-              <Filter className="h-4 w-4" />
-              الفلاتر
+              <Filter className="w-5 h-5" />
             </Button>
           </div>
         </div>
-
+        {/* Desktop header */}
+        <div className="hidden md:flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold">المركبات المميزة</h2>
+        </div>
         <div className="flex flex-col md:flex-row gap-8">
-          {/* شريط الفلتر للجوال */}
-          {isFilterOpen && (
-            <div className="fixed inset-0 z-50 bg-background md:hidden">
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b">
-                  <h3 className="font-semibold">الفلاتر</h3>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsFilterOpen(false)}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-                <div className="flex-1 overflow-auto p-4">
-                  <FilterSidebar
-                    onFilterChange={handleFilterChange}
-                    allCars={allCars}
-                  />
-                </div>
-                <div className="p-4 border-t">
-                  <Button
-                    className="w-full"
-                    onClick={() => setIsFilterOpen(false)}
-                  >
-                    تطبيق الفلاتر
-                  </Button>
-                </div>
+          {/* Mobile filter drawer */}
+          <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+            <SheetContent side="left" className="p-0 w-80">
+              <div className="p-4 mt-12">
+                <FilterSidebar
+                  onFilterChange={handleFilterChange}
+                  allCars={allCars}
+                />
               </div>
-            </div>
-          )}
-
-          {/* شريط الفلتر للكمبيوتر */}
+            </SheetContent>
+          </Sheet>
+          {/* Desktop sidebar */}
           <div className="hidden md:block w-full md:w-1/4 lg:w-1/5">
             <FilterSidebar
               onFilterChange={handleFilterChange}
               allCars={allCars}
             />
           </div>
-
-          {/* شبكة السيارات */}
+          {/* Car grid ... unchanged */}
           <div className="w-full md:w-3/4 lg:w-4/5">
             {filteredCars.length > 0 ? (
               <div className="space-y-10">
