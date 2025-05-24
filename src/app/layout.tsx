@@ -3,7 +3,9 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/layout/providers";
 import { tajawal, cairo, almarai } from "./font/font";
-import Footer from "@/components/footer";
+import Footer from "@/components/footer-section";
+import Header from "@/components/header";
+import { getUser, getUserProfile } from "@/app/actions";
 
 export const metadata: Metadata = {
   title: "سيارات الريم - منصة بيع وشراء السيارات",
@@ -15,6 +17,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUser();
+  const userDetails = user ? await getUserProfile(user.id) : null;
+
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
@@ -28,8 +33,9 @@ export default async function RootLayout({
             theme="system"
             duration={2000}
           />
+          <Header user={user} userDetails={userDetails} />
           {children}
-          {/* <Footer /> */}
+          <Footer />
         </Providers>
       </body>
     </html>

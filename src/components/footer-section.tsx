@@ -71,10 +71,8 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-semibold">اتصل بنا</h3>
             <address className="space-y-2 text-sm not-italic">
-              <p>١٢٣ شارع الابتكار</p>
-              <p>مدينة التقنية، TC ١٢٣٤٥</p>
-              <p>الهاتف: ٧٨٩٠-٤٥٦-١٢٣</p>
-              <p>البريد الإلكتروني: hello@example.com</p>
+              <p>نواكشوط، تفرغ زينة</p>
+              <p>البريد الإلكتروني: boursati1@gmail.com</p>
             </address>
           </div>
           <div className="relative">
@@ -138,18 +136,16 @@ export default function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} ريم كارز. جميع الحقوق محفوظة.
+            © {currentYear} بورصتي. جميع الحقوق محفوظة.
           </p>
           <nav className="flex gap-4 text-sm">
-            <a href="#" className="transition-colors hover:text-primary">
+            <a href="/privacy-policy" className="transition-colors hover:text-primary">
               سياسة الخصوصية
             </a>
             <a href="/terms" className="transition-colors hover:text-primary">
               شروط الخدمة
             </a>
-            <a href="#" className="transition-colors hover:text-primary">
-              إعدادات ملفات تعريف الارتباط
-            </a>
+            
           </nav>
         </div>
       </div>

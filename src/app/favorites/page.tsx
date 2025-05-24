@@ -30,6 +30,7 @@ export default async function FavoritesPage() {
         favoriteCars={[]}
         userId={user.id}
         isEmpty={true}
+        user={user}
       />
     );
   }
@@ -49,6 +50,7 @@ export default async function FavoritesPage() {
         userId={user.id}
         isEmpty={true}
         error="حدث خطأ أثناء استرجاع السيارات المفضلة"
+        user={user}
       />
     );
   }
@@ -61,6 +63,7 @@ export default async function FavoritesPage() {
       favoriteCars={favoriteCars}
       userId={user.id}
       isEmpty={favoriteCars.length === 0}
+      user={user}
     />
   );
 } 

@@ -1,10 +1,13 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer-section";
+import { getUser } from "@/app/actions";
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const user = await getUser();
+  
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header user={null} />
+      
       <main className="flex-1 container mx-auto px-4 py-10 text-right">
         <h1 className="text-3xl font-bold mb-6 text-primary">شروط الاستخدام</h1>
         <ol className="list-decimal list-inside space-y-4 text-lg">
@@ -25,7 +28,7 @@ export default function TermsPage() {
           </li>
         </ol>
       </main>
-      <Footer />
+      
     </div>
   );
 }

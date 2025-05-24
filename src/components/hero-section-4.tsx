@@ -14,7 +14,7 @@ interface HeroSectionProps {
 export function HeroSection({ user }: HeroSectionProps) {
   return (
     <>
-      <Header user={user} />
+      
       <main className="overflow-x-hidden">
         <section>
           <div className="py-6 md:py-20">
@@ -23,7 +23,7 @@ export function HeroSection({ user }: HeroSectionProps) {
                 <h1 className="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 xl:text-7xl font-cairo">
                   <span className="block">اعثر على سيارة أحلامك</span>
                   <span className="block text-foreground dark:text-white">
-                    في سيارات الريم
+                    في بورصتي
                   </span>
                 </h1>
                 <p className="mt-8 max-w-2xl text-pretty text-lg font-tajawal">

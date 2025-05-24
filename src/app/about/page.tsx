@@ -1,10 +1,10 @@
-import Header from "@/components/header";
-import Footer from "@/components/footer-section";
+import { getUser } from "@/app/actions";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const user = await getUser();
+  
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header user={null} />
       <main className="flex-1 container mx-auto px-4 py-10 text-right">
         <h1 className="text-3xl font-bold mb-6 text-primary">من نحن</h1>
         <p className="text-lg leading-relaxed mb-4">
@@ -17,7 +17,6 @@ export default function AboutPage() {
           شكراً لثقتكم بنا!
         </p>
       </main>
-      <Footer />
     </div>
   );
 }
