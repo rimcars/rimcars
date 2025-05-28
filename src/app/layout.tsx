@@ -8,7 +8,7 @@ import Header from "@/components/header";
 import { getUser, getUserProfile } from "@/app/actions";
 
 export const metadata: Metadata = {
-  title: "سيارات الريم - منصة بيع وشراء السيارات",
+  title: "بورصتي - منصة بيع وشراء السيارات",
   description: "منصة متخصصة في بيع وشراء السيارات في موريتانيا",
 };
 
