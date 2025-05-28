@@ -11,10 +11,13 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  // Await params to get the actual values
+  const { id } = await params;
+  
   // Fetch car data
-  const { data: listing } = await getPublicListingById(params.id);
+  const { data: listing } = await getPublicListingById(id);
 
   if (!listing) {
     return {
@@ -32,10 +35,13 @@ export async function generateMetadata({
 export default async function CarDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  // Await params to get the actual values
+  const { id } = await params;
+  
   // Fetch car data
-  const { data: listing, error } = await getPublicListingById(params.id);
+  const { data: listing, error } = await getPublicListingById(id);
 
   // If car not found, show 404 page
   if (!listing || error) {

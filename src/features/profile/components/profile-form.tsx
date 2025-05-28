@@ -62,7 +62,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
       <ProfileFormSection
         user={user}
         translations={profileFormTranslations}
-        validationMessages={validationMessagesObj}
       />
     </div>
   );
