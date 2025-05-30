@@ -1,0 +1,188 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Cars Marketplace - Codebase Architecture Rules
+
+## 📁 Project Structure & Organization
+
+This Arabic car marketplace "بورصتي" (Borsati) follows a **feature-based architecture** with **Route Groups** for layout organization. Refer to [CODEBASE_ANALYSIS.md](mdc:CODEBASE_ANALYSIS.md) for comprehensive analysis.
+
+### Route Groups Layout Pattern
+
+```
+src/app/
+├── layout.tsx           # Root layout (minimal - no header/footer)
+├── (public)/           # Route group for public pages
+│   ├── layout.tsx      # Public layout with header/footer
+│   └── [pages...]      # Homepage, cars, profile, favorites, about
+├── (auth)/             # Route group for authentication
+│   ├── layout.tsx      # Auth layout (clean, minimal)
+│   └── [auth-pages...] # login, signup, forgot-password, etc.
+└── dashboard/          # Seller dashboard (separate layout)
+    ├── layout.tsx      # Dashboard layout with sidebar
+    └── [dash-pages...] # listings, settings, overview
+```
+
+**Layout Inheritance:**
+- `/` (home) → `(public)/layout.tsx` → Gets header + footer
+- `/cars` → `(public)/layout.tsx` → Gets header + footer  
+- `/login` → `(auth)/layout.tsx` → Gets auth-specific layout
+- `/dashboard/*` → `dashboard/layout.tsx` → Gets sidebar only
+
+### Component Organization Rules
+
+**Shared Components Only in `/components/`:**
+- ✅ `src/components/ui/` - Base UI components (shadcn/ui)
+- ✅ `src/components/layout/` - Layout components (header, footer, sidebar)
+- ✅ `src/components/icons.tsx` - Centralized icon definitions
+- ✅ `src/features/home/components/BrandSlider.tsx` - Enhanced brand carousel (moved from shared)
+
+**Feature-Specific Components in `/features/`:**
+- ✅ `src/features/home/components/` - Homepage-specific components
+- ✅ `src/features/listings/components/` - Listing management components
+- ✅ `src/features/auth/components/` - Authentication components
+- ✅ `src/features/favorites/` - Client-side favorites (Zustand + localStorage)
+
+## 🎯 Key Architectural Patterns
+
+### 1. Route Groups Pattern
+Use Next.js Route Groups `(public)`, `(auth)` for layout organization to share headers/footers appropriately while keeping dashboard separate.
+
+### 2. Server Actions Pattern
+Leverage Next.js 15 server actions for all data mutations and fetching.
+
+### 3. Feature Module Pattern
+Each feature is self-contained with its own components, actions, and types.
+
+### 4. Client-Side State Management
+Use Zustand with localStorage persistence for user preferences like favorites.
+
+### 5. Type Centralization
+All types should be exported from `src/types/index.ts` for consistent imports.
+
+## 🔄 Data Flow Rules
+
+### Server Data Fetching
+```typescript
+// ✅ Feature-specific actions
+src/features/public-listings/actions.ts - Public car browsing
+src/features/listings/actions.ts - Dashboard listing management
+src/app/actions.ts - Global shared actions (auth, user profile)
+```
+
+### Client State Management
+```typescript
+// ✅ Client-only data (favorites)
+const { favorites, addFavorite, removeFavorite } = useFavoritesStore();
+```
+
+### Type Imports
+```typescript
+// ✅ Always use centralized types
+import { DatabaseUser, CarListing } from "@/types";
+```
+
+## 🎨 UI/UX Patterns
+
+### Arabic-First Design
+- All layouts use `dir="rtl"` and Arabic fonts (Almarai, Tajawal, Cairo)
+- Icon-first design for menu items with proper RTL support
+- Consistent spacing with `gap-3` and `flex-shrink-0` for icons
+
+### Loading States
+- Use skeleton components that match actual UI structure
+- Feature-specific skeletons in respective feature directories
+- Shared skeletons in `src/components/ui/`
+
+### Component Composition
+- Extensive use of Radix UI for accessible components
+- Modular header system with `UserMenu`, `UserMenuDropdown`, `UserAvatar`
+- Clean separation between layout and content components
+
+## 🛡️ Code Quality Rules
+
+### Testing Requirements
+- **CRITICAL**: Add testing infrastructure (Jest + React Testing Library)
+- Test critical server actions and user workflows
+- Component testing for key interactive elements
+
+### Error Handling
+- Implement centralized error handling utilities
+- Standardize error response formats across server actions
+- Provide Arabic error messages for user-facing errors
+
+### Performance Guidelines
+- Use Next.js Image optimization for all car images
+- Implement proper loading states and skeleton components
+- Consider pagination for large datasets (cars listings)
+
+## 📝 Development Workflow
+
+### File Naming Conventions
+- Use kebab-case for files: `hero-section.tsx`, `user-menu.tsx`
+- Use PascalCase for components: `HeroSection`, `UserMenu`
+- Use camelCase for functions: `getUserWithProfile`, `createListing`
+
+### Import Organization
+```typescript
+// 1. React/Next.js imports
+import React from "react";
+import Link from "next/link";
+
+// 2. Third-party libraries
+import { toast } from "sonner";
+
+// 3. Internal components (use absolute paths)
+import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@/components/ui/user-avatar";
+
+// 4. Types
+import type { DatabaseUser } from "@/types";
+
+// 5. Actions/utilities
+import { signOut } from "@/app/actions";
+```
+
+### Component Structure
+```typescript
+"use client"; // Only if needed
+
+// Imports...
+
+interface ComponentProps {
+  // Props definition
+}
+
+export function ComponentName({ prop }: ComponentProps) {
+  // Component logic
+  return (
+    // JSX
+  );
+}
+```
+
+## 🚀 Future Considerations
+
+### Scalability Patterns
+- Consider microservices architecture for future scale
+- Implement proper caching strategies for frequent queries
+- Add real-time features using Supabase subscriptions
+
+### Feature Development
+- Follow established patterns for new features
+- Add comprehensive tests for new functionality
+- Maintain Arabic-first design principles
+
+### Performance Optimization
+- Monitor Core Web Vitals
+- Implement lazy loading for non-critical components
+- Optimize images and bundle size regularly
+
+## 📚 References
+
+- [CODEBASE_ANALYSIS.md](mdc:CODEBASE_ANALYSIS.md) - Comprehensive project analysis
+- [LAYOUT_STRATEGY.md](mdc:LAYOUT_STRATEGY.md) - Layout implementation strategies
+- Next.js App Router Documentation
+- Supabase Documentation for auth and database patterns

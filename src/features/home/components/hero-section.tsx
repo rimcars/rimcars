@@ -3,8 +3,6 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import HeroHeader from "@/components/HeroHeader";
-import Header from "./header";
 import { User } from "@supabase/supabase-js"; // or your user type
 
 interface HeroSectionProps {

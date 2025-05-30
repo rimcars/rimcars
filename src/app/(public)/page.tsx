@@ -1,10 +1,9 @@
-import { getUser, getLatestListings } from "@/app/actions";
-import { HeroSection } from "@/components/hero-section-4";
-import SearchBar from "@/features/home/components/search-bar";
+import { getUser } from "@/app/actions";
+import { getLatestListings } from "@/features/public-listings/actions";
+import { HeroSection } from "@/features/home/components/hero-section";
 import FeaturedCars from "@/features/home/components/featured-cars";
-import Testimonials from "@/features/home/components/testimonials";
-import BrandSlider from "@/components/brand-slider";
-import { TestimonialsSection } from "@/features/home/components/testimonals";
+import BrandSlider from "@/features/home/components/BrandSlider";
+import { TestimonialsSection } from "@/features/home/components/testimonials";
 import { testimonialsSectionData } from "@/features/home/components/testimonials-data";
 
 export default async function Home() {

@@ -1,0 +1,440 @@
+# Layout & Routing Patterns
+
+## 🗂️ Route Groups Architecture
+
+The project uses **Next.js Route Groups** to achieve clean layout separation. This architecture is documented comprehensively in [CODEBASE_ANALYSIS.md](mdc:CODEBASE_ANALYSIS.md) and [LAYOUT_STRATEGY.md](mdc:LAYOUT_STRATEGY.md).
+
+### Route Groups Structure
+
+```
+src/app/
+├── layout.tsx           # Root layout (minimal)
+├── loading.tsx          # Global loading with skeleton
+├── (public)/            # Public pages group
+│   ├── layout.tsx       # Header + Footer layout
+│   ├── page.tsx         # Homepage
+│   ├── about/           # About pages
+│   ├── cars/            # Car browsing
+│   ├── profile/         # User profiles
+│   └── favorites/       # Favorites page
+├── (auth)/              # Authentication group
+│   ├── layout.tsx       # Clean auth layout
+│   ├── login/           # Login pages
+│   ├── signup/          # Registration
+│   ├── forgot-password/ # Password reset
+│   └── verify-email/    # Email verification
+└── dashboard/           # Dashboard (no group)
+    ├── layout.tsx       # Sidebar layout
+    ├── listings/        # Listing management
+    ├── overview/        # Dashboard overview
+    └── settings/        # User settings
+```
+
+### Layout Inheritance Rules
+
+**✅ Correct Layout Assignment:**
+- `/` → `(public)/layout.tsx` → Gets main header + footer
+- `/cars/123` → `(public)/layout.tsx` → Gets main header + footer
+- `/profile` → `(public)/layout.tsx` → Gets main header + footer
+- `/login` → `(auth)/layout.tsx` → Gets minimal auth layout
+- `/signup` → `(auth)/layout.tsx` → Gets minimal auth layout
+- `/dashboard/*` → `dashboard/layout.tsx` → Gets sidebar + inline header
+
+## 🎯 Layout Component Patterns
+
+### Root Layout (Minimal)
+```typescript
+// src/app/layout.tsx
+export default function RootLayout({ children }: LayoutProps) {
+  return (
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <body className="font-tajawal">
+        <Providers>
+          {children} {/* Only providers and children */}
+          <Toaster />
+          <StagewiseDevToolbar />
+        </Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+### Public Layout (Header + Footer)
+```typescript
+// src/app/(public)/layout.tsx
+import Header from "@/components/layout/header/main";
+import { Footer } from "@/components/layout/footer";
+import { getUserWithProfile } from "@/app/actions";
+
+export default async function PublicLayout({ children }: LayoutProps) {
+  const user = await getUserWithProfile(); // Single optimized call
+  
+  return (
+    <>
+      <Header user={user} />
+      {children}
+      <Footer />
+    </>
+  );
+}
+```
+
+### Auth Layout (Minimal)
+```typescript
+// src/app/(auth)/layout.tsx
+export default function AuthLayout({ children }: LayoutProps) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="w-full max-w-md">
+        {children}
+      </div>
+    </div>
+  );
+}
+```
+
+### Dashboard Layout (Sidebar)
+```typescript
+// src/app/dashboard/layout.tsx
+import AppSidebar from "@/components/layout/app-sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { UserMenu } from "@/components/layout/header/UserMenu";
+import { getUserWithProfile } from "@/app/actions";
+
+export default async function DashboardLayout({ children }: LayoutProps) {
+  const user = await getUserWithProfile();
+  if (user?.role !== "seller") redirect("/");
+  
+  return (
+    <SidebarProvider>
+      <AppSidebar userInitial={user} />
+      <SidebarInset>
+        {/* Inline header with UserMenu */}
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <div className="flex flex-1 items-center justify-between">
+            <h1 className="font-semibold">لوحة التحكم</h1>
+            <div className="flex items-center gap-4">
+              <ModeToggle />
+              <UserMenu user={user} />
+            </div>
+          </div>
+        </header>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+```
+
+## 🔄 User Data Fetching Strategy
+
+### Optimized User Data Pattern
+```typescript
+// ✅ Single optimized server action
+export async function getUserWithProfile(): Promise<DatabaseUser | null> {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return null;
+
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    return userProfile || null;
+  } catch (error) {
+    console.error("Error fetching user with profile:", error);
+    return null;
+  }
+}
+
+// ✅ Usage in layouts
+const user = await getUserWithProfile(); // Single call, complete data
+```
+
+### ❌ Avoid Multiple Calls Pattern
+```typescript
+// ❌ Don't do this - multiple server calls
+const user = await getUser();
+const userDetails = await getUserProfile(user?.id);
+
+// ✅ Do this instead - single optimized call
+const user = await getUserWithProfile();
+```
+
+## 🎨 Header Component Strategy
+
+### Modular Header System
+```typescript
+// ✅ Main header component
+// src/components/layout/header/main.tsx
+interface HeaderProps {
+  user: DatabaseUser | null;
+}
+
+export default function Header({ user }: HeaderProps) {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <div className="container flex h-16 items-center justify-between">
+        <Logo />
+        <Navigation />
+        <UserMenu user={user} />
+      </div>
+    </header>
+  );
+}
+
+// ✅ User menu component
+// src/components/layout/header/UserMenu.tsx
+"use client";
+
+interface UserMenuProps {
+  user: DatabaseUser | null;
+}
+
+export function UserMenu({ user }: UserMenuProps) {
+  if (!user) {
+    return <LoginButtons />;
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
+          <UserAvatar user={user} />
+        </Button>
+      </DropdownMenuTrigger>
+      <UserMenuDropdown user={user} />
+    </DropdownMenu>
+  );
+}
+```
+
+## 🔒 Route Protection Patterns
+
+### Server-Side Protection
+```typescript
+// ✅ Dashboard route protection
+export default async function DashboardLayout({ children }: LayoutProps) {
+  const user = await getUserWithProfile();
+  
+  // Protect seller-only routes
+  if (user?.role !== "seller") {
+    redirect("/");
+  }
+  
+  return (
+    <SidebarProvider>
+      {/* Layout content */}
+    </SidebarProvider>
+  );
+}
+
+// ✅ Admin route protection  
+export default async function AdminPage() {
+  const user = await getUserWithProfile();
+  
+  if (user?.role !== "admin") {
+    notFound(); // 404 for non-admin users
+  }
+  
+  return <AdminDashboard user={user} />;
+}
+```
+
+### Client-Side Navigation
+```typescript
+// ✅ Conditional navigation items
+export function Navigation() {
+  return (
+    <nav className="flex items-center gap-6">
+      <Link href="/">الرئيسية</Link>
+      <Link href="/cars">السيارات</Link>
+      <Link href="/about">عن الموقع</Link>
+    </nav>
+  );
+}
+
+// ✅ Role-based menu items
+export function UserMenuItems({ user }: { user: DatabaseUser }) {
+  return (
+    <>
+      <DropdownMenuItem asChild>
+        <Link href="/profile">الملف الشخصي</Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild>
+        <Link href="/favorites">المفضلة</Link>
+      </DropdownMenuItem>
+      {user.role === "seller" && (
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard">لوحة التحكم</Link>
+        </DropdownMenuItem>
+      )}
+    </>
+  );
+}
+```
+
+## 📱 Responsive Layout Patterns
+
+### Mobile-First Approach
+```typescript
+// ✅ Responsive header with mobile menu
+export default function Header({ user }: HeaderProps) {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Sheet>
+            <SheetTrigger asChild className="lg:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <MobileNavigation user={user} />
+          </Sheet>
+          <Logo />
+        </div>
+        
+        <nav className="hidden lg:flex items-center gap-6">
+          <Navigation />
+        </nav>
+        
+        <UserMenu user={user} />
+      </div>
+    </header>
+  );
+}
+```
+
+### Sidebar Responsive Design
+```typescript
+// ✅ Responsive sidebar with proper mobile handling
+export default function DashboardLayout({ children }: LayoutProps) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
+  
+  return (
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar userInitial={user} />
+      <SidebarInset>
+        <div className="flex flex-1 flex-col gap-4 p-4">
+          {children}
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+```
+
+## 🎯 Loading States Strategy
+
+### Global Loading Component
+```typescript
+// src/app/loading.tsx - Comprehensive skeleton
+export default function Loading() {
+  return (
+    <div className="min-h-screen">
+      {/* Header skeleton */}
+      <div className="sticky top-0 z-50 w-full border-b bg-background">
+        <div className="container flex h-16 items-center justify-between">
+          <Skeleton className="h-8 w-32" />
+          <div className="hidden lg:flex items-center gap-6">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+      </div>
+      
+      {/* Page content skeleton */}
+      <main className="container py-8">
+        <HeroSkeleton />
+        <SearchBarSkeleton />
+        <CarsGridSkeleton />
+        <TestimonialsSkeleton />
+      </main>
+      
+      {/* Footer skeleton */}
+      <FooterSkeleton />
+    </div>
+  );
+}
+```
+
+## 🚨 Layout Anti-Patterns to Avoid
+
+### ❌ Avoid These Patterns
+```typescript
+// ❌ Don't duplicate header/footer in each page
+export default function HomePage() {
+  return (
+    <>
+      <Header /> {/* Duplicate header */}
+      <main>Homepage content</main>
+      <Footer /> {/* Duplicate footer */}
+    </>
+  );
+}
+
+// ❌ Don't fetch user data in every component
+export function SomeComponent() {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    fetchUserData().then(setUser); // Wasteful repeated calls
+  }, []);
+}
+
+// ❌ Don't mix layout concerns in page components
+export default function CarDetailPage() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Layout logic in page component */}
+    </div>
+  );
+}
+```
+
+### ✅ Correct Patterns
+```typescript
+// ✅ Clean page components that focus on content
+export default function HomePage() {
+  const cars = await getLatestListings();
+  return (
+    <main>
+      <HeroSection />
+      <FeaturedCars cars={cars} />
+      <TestimonialsSection />
+    </main>
+  );
+}
+
+// ✅ Layout-specific data fetching in layout components
+export default async function PublicLayout({ children }: LayoutProps) {
+  const user = await getUserWithProfile(); // Layout handles user data
+  return (
+    <>
+      <Header user={user} />
+      {children}
+      <Footer />
+    </>
+  );
+}
+```
+
+## 📚 Layout References
+
+- **Route Groups**: [Next.js Route Groups Documentation](https://nextjs.org/docs/app/building-your-application/routing/route-groups)
+- **Layout Patterns**: [LAYOUT_STRATEGY.md](mdc:LAYOUT_STRATEGY.md) for implementation details
+- **Architecture Overview**: [CODEBASE_ANALYSIS.md](mdc:CODEBASE_ANALYSIS.md) for complete context
+- **Component Guidelines**: Reference other `.cursor/rules/` files for component-specific patterns
+
+Remember: Route Groups `(public)`, `(auth)` affect layout inheritance but don't affect URL paths. This creates clean separation between different layout needs while maintaining simple URLs.

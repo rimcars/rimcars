@@ -1,73 +1,57 @@
-import Image from "next/image";
+import { cn } from "@/lib/utils";
+import {
+  TestimonialCard,
+  TestimonialAuthor,
+} from "@/components/ui/testimonial-card";
 
-const testimonials = [
-  {
-    content:
-      "I found my dream car on RimCars within a week of searching. The process was seamless and I couldn&apos;t be happier with my purchase!",
-    author: "Sarah Johnson",
-    role: "BMW X5 Owner",
-    avatar: "/testimonial-1.jpg",
-  },
-  {
-    content:
-      "As a seller, I appreciate how easy RimCars makes it to list and manage my inventory. I&apos;ve sold three cars through the platform already!",
-    author: "Michael Rodriguez",
-    role: "Car Dealer",
-    avatar: "/testimonial-2.jpg",
-  },
-  {
-    content:
-      "The detailed filters helped me find exactly what I was looking for. Great platform with an excellent selection of premium vehicles.",
-    author: "Emily Chen",
-    role: "Mercedes C-Class Owner",
-    avatar: "/testimonial-3.jpg",
-  },
-];
+interface TestimonialsSectionProps {
+  title: string;
+  description: string;
+  testimonials: Array<{
+    author: TestimonialAuthor;
+    text: string;
+    href?: string;
+  }>;
+  className?: string;
+}
 
-export default function Testimonials() {
+export function TestimonialsSection({
+  title,
+  description,
+  testimonials,
+  className,
+}: TestimonialsSectionProps) {
   return (
-    <section className="py-16">
-      <div className="container">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight">
-            What Our Customers Say
+    <section
+      className={cn(
+        "bg-background text-foreground",
+        "py-12 sm:py-24 md:py-32 px-0",
+        className
+      )}
+    >
+      <div className="mx-auto flex max-w-container flex-col items-center gap-4 text-center sm:gap-16">
+        <div className="flex flex-col items-center gap-4 px-4 sm:gap-8">
+          <h2 className="max-w-[720px] text-3xl font-semibold leading-tight sm:text-5xl sm:leading-tight">
+            {title}
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Don&apos;t just take our word for it, hear from our satisfied
-            customers
+          <p className="text-md max-w-[600px] font-medium text-muted-foreground sm:text-xl">
+            {description}
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {testimonials.map((testimonial, idx) => (
-            <div
-              key={idx}
-              className="relative overflow-hidden rounded-lg border bg-background p-6 shadow-sm transition-all hover:shadow-md"
-            >
-              <div className="mb-4 flex items-center gap-4">
-                <div className="relative h-12 w-12 overflow-hidden rounded-full">
-                  <Image
-                    src={testimonial.avatar}
-                    alt={testimonial.author}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h3 className="font-medium">{testimonial.author}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {testimonial.role}
-                  </p>
-                </div>
-              </div>
-              <p className="italic text-muted-foreground">
-                {testimonial.content}
-              </p>
-              <div className="absolute -right-2 -top-2 text-4xl text-primary opacity-10">
-                ❝
-              </div>
+        <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
+          <div className="group flex overflow-hidden p-2 [--gap:1rem] [gap:var(--gap)] flex-row [--duration:80s]">
+            <div className="flex shrink-0 justify-around [gap:var(--gap)] animate-marquee flex-row group-hover:[animation-play-state:paused]">
+              {[...Array(4)].map((_, setIndex) =>
+                testimonials.map((testimonial, i) => (
+                  <TestimonialCard key={`${setIndex}-${i}`} {...testimonial} />
+                ))
+              )}
             </div>
-          ))}
+          </div>
+
+          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-1/3 bg-gradient-to-r from-background sm:block" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-l from-background sm:block" />
         </div>
       </div>
     </section>

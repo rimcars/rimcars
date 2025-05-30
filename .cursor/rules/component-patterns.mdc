@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 # Component Patterns and Architecture Guidelines
 
@@ -377,4 +377,4 @@ export default function Loading() {
 9. **Follow consistent naming conventions** across all files
 10. **Test component edge cases** and error scenarios
 
-Reference the existing components in [src/features/](mdc:src/features/) and [src/components/](mdc:src/components/) for implementation examples.
+Reference the existing components in [src/features/](mdc:src/features) and [src/components/](mdc:src/components) for implementation examples.

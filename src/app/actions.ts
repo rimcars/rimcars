@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import type { Tables } from "@/types/database.types";
+import type { Tables, DatabaseUser } from "@/types";
 
 export async function isUserExiste(email: string) {
   const supabase = await createClient();
@@ -199,92 +199,43 @@ export async function updateUserProfile(data: any, userId?: string) {
   }
 }
 
-// Fetch the latest 10 listed cars
-export async function getLatestListings(): Promise<Tables<"listings">[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  if (error) {
-    console.error("Error fetching latest listings:", error);
-    return [];
-  }
-
-  // Ensure make, model, and car_name are always strings
-  return (data || []).map((car) => ({
-    ...car,
-    make: car.make ?? "",
-    model: car.model ?? "",
-    car_name: car.car_name ?? "",
-  }));
-}
-
-// Fetch user favorites
-export async function getUserFavorites() {
-  const user = await getCurrentUser();
-  if (!user) return { error: "User not authenticated", favorites: [] };
-
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("favorites")
-    .select("car_id")
-    .eq("user_id", user.id);
-
-  if (error) {
-    console.error("Error fetching favorites:", error);
-    return { error: error.message, favorites: [] };
-  }
-
-  const favorites = data
-    .map((fav) => fav.car_id)
-    .filter((id) => !!id);
-
-  return { favorites, error: null };
-}
-
-// Add a car to favorites
-export async function addToFavorites(carId: string) {
-  const user = await getCurrentUser();
-  if (!user) return { error: "User not authenticated", success: false };
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("favorites")
-    .insert([{ user_id: user.id, car_id: carId }]);
-
-  if (error) {
-    console.error("Error adding favorite:", error);
-    return { error: error.message, success: false };
-  }
-
-  return { success: true, error: null };
-}
-
-// Remove a car from favorites
-export async function removeFromFavorites(carId: string) {
-  const user = await getCurrentUser();
-  if (!user) return { error: "User not authenticated", success: false };
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("favorites")
-    .delete()
-    .eq("user_id", user.id)
-    .eq("car_id", carId);
-
-  if (error) {
-    console.error("Error removing favorite:", error);
-    return { error: error.message, success: false };
-  }
-
-  return { success: true, error: null };
-}
-
 // Check if user is authenticated (for client use)
 export async function isUserAuthenticated() {
   const user = await getCurrentUser();
   return { isAuthenticated: !!user, userId: user?.id };
+}
+
+// Simplified: Return only the database user with all details
+export async function getUserWithProfile(): Promise<DatabaseUser | null> {
+  const supabase = await createClient();
+
+  // Get authenticated user
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return null;
+  }
+
+  try {
+    // Get user profile from database
+    const { data: userProfile, error: profileError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) {
+      console.log("error getting user profile:", profileError);
+      return null;
+    }
+
+    // Return the complete database user object
+    return userProfile;
+  } catch (error) {
+    console.error("Error in getUserWithProfile:", error);
+    return null;
+  }
 }

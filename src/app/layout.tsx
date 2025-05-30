@@ -3,9 +3,6 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/layout/providers";
 import { tajawal, cairo, almarai } from "./font/font";
-import Footer from "@/components/footer-section";
-import Header from "@/components/header";
-import { getUser, getUserProfile } from "@/app/actions";
 import StagewiseDevToolbar from "@/components/dev/stagewise-dev-toolbar";
 
 export const metadata: Metadata = {
@@ -18,9 +15,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser();
-  const userDetails = user ? await getUserProfile(user.id) : null;
-
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
@@ -28,14 +22,8 @@ export default async function RootLayout({
         className={`${almarai.variable} ${tajawal.variable} ${cairo.variable} font-almarai`}
       >
         <Providers>
-          <Toaster
-            richColors
-            position="top-center"
-            duration={2000}
-          />
-          <Header user={user} userDetails={userDetails} />
+          <Toaster richColors position="top-center" duration={2000} />
           {children}
-          <Footer />
           {/* Stagewise dev toolbar - only loads in development */}
           <StagewiseDevToolbar />
         </Providers>

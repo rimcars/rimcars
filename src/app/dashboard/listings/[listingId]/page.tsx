@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import PageContainer from "@/components/layout/page-container";
 import { Suspense } from "react";
-import FormCardSkeleton from "@/components/form-card-skeleton";
+import FormCardSkeleton from "@/features/listings/components/form-card-skeleton";
 import ListingDetailContent from "@/features/listings/components/detail/listing-detail-content";
 import { handleListingFormAction } from "@/features/listings/actions";
 import { notFound } from "next/navigation";

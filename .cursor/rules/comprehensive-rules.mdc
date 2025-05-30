@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Car Marketplace - Comprehensive Development Rules
+globs: 
 alwaysApply: false
 ---
 # Car Marketplace - Comprehensive Development Rules
@@ -11,14 +11,14 @@ You are an expert developer proficient in TypeScript, React, Next.js 15 App Rout
 
 ### Next.js 15 App Router Structure
 - Use Next.js 15 App Router with TypeScript
-- Place pages in [src/app/](mdc:src/app/) directory following App Router conventions
+- Place pages in [src/app/](mdc:src/app) directory following App Router conventions
 - Use route groups with parentheses for organization: `(auth)/`, `(dashboard)/`
 - Implement proper page, layout, loading, and error boundaries
 - Use Server Components by default, Client Components only when needed
 - Reference: [src/app/layout.tsx](mdc:src/app/layout.tsx), [src/app/page.tsx](mdc:src/app/page.tsx)
 
 ### Features-Based Architecture
-- Organize code by features in [src/features/](mdc:src/features/) directory
+- Organize code by features in [src/features/](mdc:src/features) directory
 - Each feature should contain:
   - `actions/` - Server actions and API calls
   - `components/` - Feature-specific components
@@ -26,15 +26,15 @@ You are an expert developer proficient in TypeScript, React, Next.js 15 App Rout
   - `validations/` - Zod schemas for validation
   - `store/` - Zustand stores (when needed)
   - `index.ts` - Feature exports (components, types, actions)
-- Reference: [src/features/favorites/index.ts](mdc:src/features/favorites/index.ts), [src/features/auth/](mdc:src/features/auth/)
+- Reference: [src/features/favorites/index.ts](mdc:src/features/favorites/index.ts), [src/features/auth/](mdc:src/features/auth)
 
 ### Component Organization
-- **Global Components**: Place in [src/components/](mdc:src/components/)
+- **Global Components**: Place in [src/components/](mdc:src/components)
   - `ui/` - Shadcn/ui components
   - `layout/` - Layout-specific components (header, footer, sidebar)
   - `modal/` - Reusable modal components
 - **Feature Components**: Place in `src/features/{feature}/components/`
-- **Shared Utilities**: Place in [src/lib/](mdc:src/lib/) and [src/utils/](mdc:src/utils/)
+- **Shared Utilities**: Place in [src/lib/](mdc:src/lib) and [src/utils/](mdc:src/utils)
 - Reference: [src/components/layout/providers.tsx](mdc:src/components/layout/providers.tsx)
 
 ## Code Style and Structure
@@ -86,7 +86,7 @@ You are an expert developer proficient in TypeScript, React, Next.js 15 App Rout
 - Implement proper store slicing for large applications
 - Export stores from feature `index.ts` files
 - Use stores for client-side state only
-- Reference: [src/features/favorites/store/](mdc:src/features/favorites/store/)
+- Reference: [src/features/favorites/store/](mdc:src/features/favorites/store)
 
 ### Form State Management
 - Use React Hook Form with Zod resolvers
@@ -99,7 +99,7 @@ You are an expert developer proficient in TypeScript, React, Next.js 15 App Rout
 ### Shadcn/ui Integration
 - Use Shadcn/ui components exclusively for UI elements
 - Install new components with: `npx shadcn@latest add <component-name>`
-- Customize components in [src/components/ui/](mdc:src/components/ui/)
+- Customize components in [src/components/ui/](mdc:src/components/ui)
 - Follow component composition patterns
 - Reference: [components.json](mdc:components.json)
 

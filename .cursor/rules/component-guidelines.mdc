@@ -1,0 +1,289 @@
+# Component Development Guidelines
+
+## 🧩 Component Organization Principles
+
+Based on the current clean architecture documented in [CODEBASE_ANALYSIS.md](mdc:CODEBASE_ANALYSIS.md), follow these component organization rules:
+
+### Shared vs Feature-Specific Components
+
+**✅ Shared Components (`src/components/`)**
+- Base UI components from shadcn/ui
+- Layout components (header, footer, sidebar)
+- Truly reusable components across multiple features
+- Icons and brand elements
+
+**✅ Feature-Specific Components (`src/features/[feature]/components/`)**
+- Homepage components: [hero-section.tsx](mdc:src/features/home/components/hero-section.tsx)
+- Listing forms and management components
+- Authentication forms and flows
+- Any component specific to a single feature
+
+### Current Architecture Examples
+
+**Header System (Modular & Clean):**
+```typescript
+// ✅ Modular header components
+src/components/layout/header/
+├── main.tsx              # Main header container
+├── UserMenu.tsx          # User menu logic
+├── UserMenuDropdown.tsx  # Dropdown UI component
+└── index.ts              # Clean exports
+```
+
+**Feature Components:**
+```typescript
+// ✅ Homepage components
+src/features/home/components/
+├── hero-section.tsx      # Main hero (moved from components/)
+├── testimonials.tsx      # Testimonials section
+├── featured-cars.tsx     # Car grid display
+└── search-bar.tsx        # Search functionality
+
+// ✅ Listing components  
+src/features/listings/components/
+├── form-card-skeleton.tsx  # Loading states (moved from components/)
+├── detail/               # Listing detail components
+└── list/                 # Listing list components
+```
+
+## 🎨 Component Design Patterns
+
+### 1. Arabic-First Design
+```typescript
+// ✅ RTL support and Arabic fonts
+<div className="font-almarai text-right" dir="rtl">
+  <h1 className="font-cairo text-4xl">اعثر على سيارة أحلامك</h1>
+  <p className="font-tajawal">وصف المنتج باللغة العربية</p>
+</div>
+```
+
+### 2. Icon-First Menu Items
+```typescript
+// ✅ Consistent icon-first design
+<div className="flex items-center gap-3">
+  <LogOut className="h-4 w-4 flex-shrink-0" />
+  <span className="text-sm">تسجيل الخروج</span>
+</div>
+```
+
+### 3. Loading States with Skeletons
+```typescript
+// ✅ Skeleton components that match actual UI
+import { Skeleton } from "@/components/ui/skeleton";
+
+function CarCardSkeleton() {
+  return (
+    <div className="rounded-lg border bg-card">
+      <Skeleton className="h-48 w-full rounded-t-lg" />
+      <div className="p-4 space-y-2">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+    </div>
+  );
+}
+```
+
+### 4. Type-Safe Props
+```typescript
+// ✅ Always use proper TypeScript interfaces
+import type { DatabaseUser } from "@/types";
+
+interface UserMenuProps {
+  user: DatabaseUser | null;
+}
+
+export function UserMenu({ user }: UserMenuProps) {
+  // Component implementation
+}
+```
+
+## 🔄 State Management Patterns
+
+### Client-Side State (Zustand)
+```typescript
+// ✅ Client-only data with persistence
+import { useFavoritesStore } from "@/features/favorites/store";
+
+function FavoriteButton({ carId }: { carId: string }) {
+  const { isFavorite, toggleFavorite } = useFavoritesStore();
+  
+  return (
+    <Button 
+      onClick={() => toggleFavorite(carId)}
+      variant={isFavorite(carId) ? "default" : "outline"}
+    >
+      {isFavorite(carId) ? "محفوظ" : "إضافة للمفضلة"}
+    </Button>
+  );
+}
+```
+
+### Server State (Server Actions)
+```typescript
+// ✅ Server actions for data fetching
+import { getUserWithProfile } from "@/app/actions";
+
+export default async function Layout({ children }: LayoutProps) {
+  const user = await getUserWithProfile();
+  
+  return (
+    <>
+      <Header user={user} />
+      {children}
+    </>
+  );
+}
+```
+
+## 🛠️ Development Best Practices
+
+### 1. Component File Structure
+```typescript
+"use client"; // Only when needed for interactivity
+
+// 1. React/Next.js imports
+import React, { useState } from "react";
+import Link from "next/link";
+
+// 2. Third-party libraries  
+import { toast } from "sonner";
+
+// 3. UI components
+import { Button } from "@/components/ui/button";
+
+// 4. Feature components
+import { UserAvatar } from "@/components/ui/user-avatar";
+
+// 5. Types
+import type { DatabaseUser } from "@/types";
+
+// 6. Actions/utilities
+import { signOut } from "@/app/actions";
+
+interface ComponentProps {
+  user: DatabaseUser | null;
+}
+
+export function ComponentName({ user }: ComponentProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const handleAction = async () => {
+    try {
+      setIsLoading(true);
+      await signOut();
+      toast.success("تم تسجيل الخروج بنجاح");
+    } catch (error) {
+      toast.error("فشل في العملية");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Component JSX */}
+    </div>
+  );
+}
+```
+
+### 2. Responsive Design
+```typescript
+// ✅ Mobile-first responsive design
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {cars.map((car) => (
+    <CarCard key={car.id} car={car} />
+  ))}
+</div>
+```
+
+### 3. Error Handling
+```typescript
+// ✅ Consistent error handling with Arabic messages
+try {
+  await createListing(data);
+  toast.success("تم إنشاء الإعلان بنجاح");
+} catch (error) {
+  console.error("Listing creation error:", error);
+  toast.error("فشل في إنشاء الإعلان");
+}
+```
+
+## 🎯 Component Testing Guidelines
+
+### Test Structure (When Testing Infrastructure is Added)
+```typescript
+// Future testing pattern
+import { render, screen } from "@testing-library/react";
+import { UserMenu } from "./UserMenu";
+
+describe("UserMenu", () => {
+  it("shows login buttons when user is null", () => {
+    render(<UserMenu user={null} />);
+    expect(screen.getByText("تسجيل الدخول")).toBeInTheDocument();
+  });
+  
+  it("shows user avatar when user is logged in", () => {
+    const mockUser = { id: "1", name: "أحمد", email: "ahmed@example.com" };
+    render(<UserMenu user={mockUser} />);
+    expect(screen.getByRole("button")).toBeInTheDocument();
+  });
+});
+```
+
+## 🚨 Common Anti-Patterns to Avoid
+
+### ❌ Don't Put Feature Components in Shared Components
+```typescript
+// ❌ Wrong - Homepage hero in shared components
+src/components/hero-section.tsx
+
+// ✅ Correct - Homepage hero in feature
+src/features/home/components/hero-section.tsx
+```
+
+### ❌ Don't Use Global CSS for Component Styling
+```css
+/* ❌ Wrong - Global CSS */
+.spinner { animation: spin 1s linear infinite; }
+```
+
+```typescript
+// ✅ Correct - Tailwind classes
+<Loader2 className="animate-spin h-4 w-4" />
+```
+
+### ❌ Don't Mix Server and Client State
+```typescript
+// ❌ Wrong - Server actions in client components for local state
+const toggleFavorite = () => addToFavorites(carId); // Server action for client state
+
+// ✅ Correct - Client state for client preferences
+const { toggleFavorite } = useFavoritesStore();
+```
+
+## 🔧 Refactoring Guidelines
+
+### When to Move Components
+1. **Move to Feature**: If component is only used in one feature
+2. **Move to Shared**: If component is used across multiple features
+3. **Create Sub-Components**: If component becomes too large (>200 lines)
+
+### Component Splitting Strategy
+```typescript
+// ✅ Large component split into smaller pieces
+UserMenu.tsx           # Main logic component
+├── UserMenuDropdown.tsx   # Dropdown UI
+├── UserAvatar.tsx         # Avatar display  
+└── UserMenuItems.tsx      # Menu items list
+```
+
+## 📚 Component Library References
+
+- **Base Components**: [shadcn/ui](https://ui.shadcn.com/) components in `src/components/ui/`
+- **Icons**: [Lucide React](https://lucide.dev/) icons via `src/components/icons.tsx`
+- **Animations**: [Framer Motion](https://www.framer.com/motion/) for complex animations
+- **Forms**: [React Hook Form](https://react-hook-form.com/) with Zod validation
+
+Remember: Always refer to [CODEBASE_ANALYSIS.md](mdc:CODEBASE_ANALYSIS.md) for the complete architectural context and current project status.

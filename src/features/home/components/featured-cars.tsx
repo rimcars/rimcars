@@ -1,12 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Calendar, Gauge, Fuel, Cog, User, MapPin } from "lucide-react";
-import { FavoriteButton } from "@/features/favorites";
+import { CarCard } from "@/features/public-listings/components/car-card";
+import { UiCar } from "@/features/public-listings/types";
 
 interface Car {
   id: string;
@@ -29,7 +26,52 @@ interface FeaturedCarsProps {
   cars: Car[];
 }
 
+// Simple conversion function for featured cars
+function convertCarToUiCar(car: Car): UiCar {
+  // Map fuel_type to Arabic display names
+  const fuelTypeMap: Record<string, string> = {
+    petrol: "بنزين",
+    diesel: "ديزل",
+    electric: "كهربائي",
+    hybrid: "هجين",
+  };
+
+  // Map transmission to Arabic display names
+  const transmissionMap: Record<string, string> = {
+    automatic: "أوتوماتيك",
+    manual: "يدوي",
+  };
+
+  // Map condition to Arabic display names
+  const conditionMap: Record<string, string> = {
+    new: "جديد",
+    used: "مستعمل",
+  };
+
+  return {
+    id: car.id,
+    name: car.car_name,
+    price: car.price,
+    year: car.year,
+    image: car.images?.[0] || null,
+    images: car.images || [],
+    mileage: car.mileage,
+    fuelType: fuelTypeMap[car.fuel_type || ""] || car.fuel_type || "غير محدد",
+    transmission:
+      transmissionMap[car.transmission || ""] || car.transmission || "غير محدد",
+    brand: car.make || "غير محدد",
+    model: car.model,
+    condition: conditionMap[car.condition] || car.condition || "غير محدد",
+    location: car.location,
+    sellerName: car.seller_name,
+    sellerPhone: car.seller_phone,
+  };
+}
+
 export default function FeaturedCars({ cars }: FeaturedCarsProps) {
+  // Convert the cars to UiCar format for CarCard component
+  const uiCars = cars.map(convertCarToUiCar);
+
   return (
     <section className="py-16 bg-background">
       <div className="container">
@@ -43,104 +85,8 @@ export default function FeaturedCars({ cars }: FeaturedCarsProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {cars.map((car) => (
-            <Card
-              key={car.id}
-              className="overflow-hidden transition-all hover:shadow-lg group"
-            >
-              <div className="relative h-48 w-full overflow-hidden">
-                <Image
-                  src={car.images[0] || "/car-placeholder.jpg"}
-                  alt={car.car_name}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 320px"
-                />
-                <Badge
-                  variant={car.condition === "new" ? "default" : "secondary"}
-                  className="absolute top-2 right-2"
-                >
-                  {car.condition === "new" ? "جديد" : "مستعمل"}
-                </Badge>
-
-                {/* Add Favorite Button */}
-                <FavoriteButton carId={car.id} variant="floating" />
-
-                {/* Seller info overlay on hover */}
-                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center p-4 text-white">
-                  {car.seller_name && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <User className="h-4 w-4" />
-                      <span>{car.seller_name}</span>
-                    </div>
-                  )}
-                  {car.location && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>{car.location}</span>
-                    </div>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2 text-white border-white hover:bg-white hover:text-black"
-                    asChild
-                  >
-                    <Link href={`/cars/${car.id}`}>عرض التفاصيل</Link>
-                  </Button>
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <h3 className="font-semibold text-lg truncate">
-                    {car.car_name}
-                  </h3>
-                  <span className="text-primary font-bold text-xl">
-                    {car.price.toLocaleString()} MRU
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2 text-sm text-muted-foreground mb-2">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {car.year || "—"}
-                  </span>
-                  {typeof car.mileage === "number" && (
-                    <span className="flex items-center gap-1">
-                      <Gauge className="h-4 w-4" />
-                      {car.mileage.toLocaleString()} كم
-                    </span>
-                  )}
-                  {car.fuel_type && (
-                    <span className="flex items-center gap-1">
-                      <Fuel className="h-4 w-4" />
-                      {car.fuel_type === "petrol"
-                        ? "بنزين"
-                        : car.fuel_type === "diesel"
-                        ? "ديزل"
-                        : car.fuel_type === "electric"
-                        ? "كهرباء"
-                        : "هجين"}
-                    </span>
-                  )}
-                  {car.transmission && (
-                    <span className="flex items-center gap-1">
-                      <Cog className="h-4 w-4" />
-                      {car.transmission === "automatic" ? "أوتوماتيك" : "يدوي"}
-                    </span>
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground mb-1">
-                  {car.make} {car.model}
-                </div>
-              </CardContent>
-              <CardFooter className="p-4 pt-0 flex gap-2">
-                <Link href={`/cars/${car.id}`} className="w-full">
-                  <Button className="w-full" variant="default">
-                    عرض التفاصيل
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
+          {uiCars.map((car) => (
+            <CarCard key={car.id} car={car} />
           ))}
         </div>
 
