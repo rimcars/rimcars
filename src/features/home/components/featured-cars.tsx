@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Calendar, Gauge, Fuel, Cog, User, MapPin } from "lucide-react";
+import { FavoriteButton } from "@/features/favorites";
 
 interface Car {
   id: string;
@@ -59,6 +62,9 @@ export default function FeaturedCars({ cars }: FeaturedCarsProps) {
                 >
                   {car.condition === "new" ? "جديد" : "مستعمل"}
                 </Badge>
+
+                {/* Add Favorite Button */}
+                <FavoriteButton carId={car.id} variant="floating" />
 
                 {/* Seller info overlay on hover */}
                 <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center p-4 text-white">

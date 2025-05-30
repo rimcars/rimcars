@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/utils/supabase/client";
@@ -16,15 +16,19 @@ export function GoogleSignInButton() {
       setIsLoading(true);
       setError(null);
 
-      // Get the return URL if it exists
+      // Get the return URL from search params or default to dashboard
       const returnTo = searchParams.get("returnTo") || "/dashboard";
+
+      // Construct the callback URL with proper parameters
+      const callbackUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
+      const redirectTo = `${callbackUrl}?returnTo=${encodeURIComponent(
+        returnTo
+      )}`;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${
-            process.env.NEXT_PUBLIC_SITE_URL
-          }/auth/callback?returnTo=${encodeURIComponent(returnTo)}`,
+          redirectTo,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -34,11 +38,23 @@ export function GoogleSignInButton() {
 
       if (error) {
         console.error("❌ Google sign-in error:", error);
-        throw error;
+
+        // Handle specific OAuth errors
+        let userFriendlyMessage = "فشل في تسجيل الدخول باستخدام جوجل";
+        if (error.message.includes("popup")) {
+          userFriendlyMessage =
+            "تم إغلاق النافذة المنبثقة. الرجاء المحاولة مرة أخرى.";
+        } else if (error.message.includes("network")) {
+          userFriendlyMessage = "خطأ في الشبكة. تحقق من اتصال الإنترنت.";
+        } else if (error.message.includes("unauthorized")) {
+          userFriendlyMessage = "غير مصرح. تحقق من إعدادات جوجل.";
+        }
+
+        setError(userFriendlyMessage);
       }
     } catch (error) {
       console.error("❌ Error signing in with Google:", error);
-      setError(error instanceof Error ? error.message : "An error occurred");
+      setError("حدث خطأ غير متوقع. الرجاء المحاولة مرة أخرى.");
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +81,11 @@ export function GoogleSignInButton() {
           </div>
         )}
       </Button>
-      {error && <p className="text-sm text-destructive text-center">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive text-center bg-destructive/10 p-2 rounded-md">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

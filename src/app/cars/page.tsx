@@ -1,17 +1,18 @@
 import { CarListing } from "@/features/public-listings/components/car-listing";
-import { Brands } from "@/features/public-listings/components/brands";
 import { getAllListings } from "@/features/public-listings/actions";
 import { convertListingToUiCar } from "@/features/public-listings/types";
-import { getUser } from "@/app/actions";
-import { User } from "@supabase/supabase-js";
-export const dynamic = "force-dynamic";
+
+// Enable ISG with revalidation every 30 minutes
+export const revalidate = 1800; // 30 minutes
 
 export default async function CarsPage() {
-  // Get user data
-  const user = await getUser();
-  
-  // Fetch listings from server
+  // Fetch listings from server using public client
   const { data: listings, error } = await getAllListings();
+
+  // Handle error case gracefully
+  if (error) {
+    console.error("Failed to fetch listings:", error);
+  }
 
   // Convert listings to UI format
   const cars = listings ? listings.map(convertListingToUiCar) : [];

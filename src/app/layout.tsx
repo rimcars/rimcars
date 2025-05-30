@@ -6,6 +6,7 @@ import { tajawal, cairo, almarai } from "./font/font";
 import Footer from "@/components/footer-section";
 import Header from "@/components/header";
 import { getUser, getUserProfile } from "@/app/actions";
+import StagewiseDevToolbar from "@/components/dev/stagewise-dev-toolbar";
 
 export const metadata: Metadata = {
   title: "بورصتي - منصة بيع وشراء السيارات",
@@ -30,12 +31,13 @@ export default async function RootLayout({
           <Toaster
             richColors
             position="top-center"
-            theme="system"
             duration={2000}
           />
           <Header user={user} userDetails={userDetails} />
           {children}
           <Footer />
+          {/* Stagewise dev toolbar - only loads in development */}
+          <StagewiseDevToolbar />
         </Providers>
       </body>
     </html>

@@ -27,3 +27,25 @@ export async function createClient() {
     }
   );
 }
+
+/**
+ * Creates a public Supabase client without cookies for static generation
+ * Use this for public data that doesn't require authentication
+ * Enables ISG (Incremental Static Generation) for better performance
+ */
+export function createPublicClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {
+          // No-op for public client - enables static generation
+        },
+      },
+    }
+  );
+}

@@ -1,0 +1,337 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Car Marketplace - Comprehensive Development Rules
+
+You are an expert developer proficient in TypeScript, React, Next.js 15 App Router, Supabase, Zod, Zustand, TanStack React Query, Tailwind CSS, and Shadcn/ui.
+
+## Project Architecture
+
+### Next.js 15 App Router Structure
+- Use Next.js 15 App Router with TypeScript
+- Place pages in [src/app/](mdc:src/app/) directory following App Router conventions
+- Use route groups with parentheses for organization: `(auth)/`, `(dashboard)/`
+- Implement proper page, layout, loading, and error boundaries
+- Use Server Components by default, Client Components only when needed
+- Reference: [src/app/layout.tsx](mdc:src/app/layout.tsx), [src/app/page.tsx](mdc:src/app/page.tsx)
+
+### Features-Based Architecture
+- Organize code by features in [src/features/](mdc:src/features/) directory
+- Each feature should contain:
+  - `actions/` - Server actions and API calls
+  - `components/` - Feature-specific components
+  - `types/` - Feature-specific TypeScript types
+  - `validations/` - Zod schemas for validation
+  - `store/` - Zustand stores (when needed)
+  - `index.ts` - Feature exports (components, types, actions)
+- Reference: [src/features/favorites/index.ts](mdc:src/features/favorites/index.ts), [src/features/auth/](mdc:src/features/auth/)
+
+### Component Organization
+- **Global Components**: Place in [src/components/](mdc:src/components/)
+  - `ui/` - Shadcn/ui components
+  - `layout/` - Layout-specific components (header, footer, sidebar)
+  - `modal/` - Reusable modal components
+- **Feature Components**: Place in `src/features/{feature}/components/`
+- **Shared Utilities**: Place in [src/lib/](mdc:src/lib/) and [src/utils/](mdc:src/utils/)
+- Reference: [src/components/layout/providers.tsx](mdc:src/components/layout/providers.tsx)
+
+## Code Style and Structure
+
+### TypeScript Standards
+- Use TypeScript for all code with strict mode enabled
+- Prefer interfaces over types for object shapes
+- Use literal types instead of enums
+- Implement proper type inference with Zod schemas
+- Export types from feature `index.ts` files
+- Reference: [src/types/database.types.ts](mdc:src/types/database.types.ts)
+
+### Component Patterns
+- Use functional components with TypeScript interfaces for props
+- Prefer Server Components, mark Client Components with "use client"
+- Structure components: imports, interfaces, component, exports
+- Use descriptive variable names with auxiliary verbs (`isLoading`, `hasError`)
+- Implement proper error boundaries and loading states
+- Reference: [src/features/auth/components/login-form.tsx](mdc:src/features/auth/components/login-form.tsx)
+
+### File Naming Conventions
+- **Directories**: lowercase with dashes (`auth-wizard`, `car-listings`)
+- **Components**: PascalCase (`LoginForm.tsx`, `CarCard.tsx`)
+- **Utilities**: camelCase (`carImageUtils.ts`, `validationHelpers.ts`)
+- **Pages**: lowercase (`page.tsx`, `layout.tsx`, `loading.tsx`)
+- **Types**: camelCase with descriptive names (`carListing.ts`, `userProfile.ts`)
+
+## Server Actions and Data Handling
+
+### Server Actions Pattern
+- Place server actions in [src/app/actions.ts](mdc:src/app/actions.ts) for global actions
+- Place feature-specific actions in `src/features/{feature}/actions/`
+- Always use "use server" directive
+- Import from `@/utils/supabase/server` for server-side operations
+- Use `revalidatePath()` for cache invalidation
+- Implement proper error handling and return structured responses
+
+### Data Fetching
+- Use Server Components for initial data loading
+- Implement TanStack React Query for client-side data management
+- Use Suspense boundaries with proper loading states
+- Cache data appropriately with Next.js caching strategies
+
+## State Management
+
+### Zustand Store Pattern
+- Create stores in `src/features/{feature}/store/`
+- Use TypeScript interfaces for store state
+- Implement proper store slicing for large applications
+- Export stores from feature `index.ts` files
+- Use stores for client-side state only
+- Reference: [src/features/favorites/store/](mdc:src/features/favorites/store/)
+
+### Form State Management
+- Use React Hook Form with Zod resolvers
+- Create validation schemas in `src/features/{feature}/validations/`
+- Implement proper form error handling and user feedback
+- Reference: [src/features/auth/validations/login-schema.ts](mdc:src/features/auth/validations/login-schema.ts)
+
+## UI and Styling
+
+### Shadcn/ui Integration
+- Use Shadcn/ui components exclusively for UI elements
+- Install new components with: `npx shadcn@latest add <component-name>`
+- Customize components in [src/components/ui/](mdc:src/components/ui/)
+- Follow component composition patterns
+- Reference: [components.json](mdc:components.json)
+
+### Styling Guidelines
+- Use Tailwind CSS for all styling
+- Implement mobile-first responsive design
+- Maintain design consistency across routes
+- Use CSS variables for theming (defined in [src/app/globals.css](mdc:src/app/globals.css))
+- Follow established color scheme and spacing patterns
+- Reference: [tailwind.config.ts](mdc:tailwind.config.ts)
+
+### Theme System
+- Support light/dark themes using next-themes
+- Store theme preference in localStorage
+- Implement theme toggle components in layout
+- Use CSS variables for theme-aware colors
+- Reference: [src/components/layout/providers.tsx](mdc:src/components/layout/providers.tsx)
+
+## Supabase Integration
+
+### Authentication
+- Use Supabase Auth with proper session management
+- Implement server-side auth checks in layouts and pages
+- Handle auth redirects properly with return URLs
+- Use middleware for protected routes
+- Reference: [src/features/auth/components/google-sign-in-button.tsx](mdc:src/features/auth/components/google-sign-in-button.tsx)
+
+### Database Operations
+- Generate types with: `npm run supabase-types`
+- Use typed database operations with generated types
+- Implement proper error handling for database operations
+- Use Row Level Security (RLS) policies appropriately
+
+### File Storage
+- Use Supabase Storage for file uploads
+- Implement proper file validation and error handling
+- Use appropriate bucket policies and security rules
+
+## Validation and Forms
+
+### Zod Schema Pattern
+```typescript
+// Example from src/features/auth/validations/login-schema.ts
+import { z } from "zod";
+
+export const createLoginSchema = z.object({
+  email: z.string().email({
+    message: "البريد الإلكتروني غير صحيح",
+  }),
+  password: z.string().min(6, {
+    message: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+  }),
+});
+
+export type LoginFormValues = z.infer<typeof createLoginSchema>;
+```
+
+### Form Component Pattern
+- Use React Hook Form with zodResolver
+- Implement proper loading states and error handling
+- Use Shadcn/ui Form components for consistent styling
+- Handle server actions with proper error feedback
+
+## Performance and Optimization
+
+### Image Optimization
+- Use Next.js Image component with proper sizing
+- Implement lazy loading for non-critical images
+- Use appropriate image formats (WebP, AVIF when supported)
+- Store images in Supabase Storage with proper optimization
+- Reference: [src/utils/car-images.ts](mdc:src/utils/car-images.ts)
+
+### Code Splitting
+- Use dynamic imports for heavy components
+- Implement route-based code splitting with App Router
+- Lazy load feature components when appropriate
+
+### Caching Strategy
+- Use Next.js built-in caching for static content
+- Implement proper revalidation strategies
+- Use TanStack React Query for client-side caching
+
+## Internationalization (i18n)
+
+### Arabic Language Support
+- Support RTL (Right-to-Left) layouts
+- Use proper Arabic typography and spacing
+- Implement language-specific validation messages
+- Follow Arabic UI/UX best practices
+
+## Error Handling and Validation
+
+### Error Handling Pattern
+- Handle errors at the beginning of functions with early returns
+- Use guard clauses for preconditions
+- Implement proper error logging
+- Provide user-friendly error messages
+- Use custom error types for consistency
+
+### Loading States
+- Implement Suspense boundaries for async components
+- Use skeleton loaders for better UX
+- Handle loading states in forms and data fetching
+
+## Git Conventions
+
+### Commit Message Format
+```
+<type>: <summary>
+
+<detailed description>
+
+<footer>
+```
+
+### Commit Types
+- `feat:` - New features
+- `fix:` - Bug fixes  
+- `docs:` - Documentation updates
+- `style:` - Code style changes
+- `refactor:` - Code refactoring
+- `perf:` - Performance improvements
+- `test:` - Testing changes
+- `chore:` - Maintenance tasks
+
+## Security Best Practices
+
+### Authentication Security
+- Implement proper session management
+- Use secure cookie settings
+- Validate user permissions on server-side
+- Implement CSRF protection
+
+### Data Validation
+- Validate all user inputs with Zod schemas
+- Sanitize data before database operations
+- Use parameterized queries (Supabase handles this)
+- Implement proper access controls
+
+## File Reference Patterns
+
+### Import Aliases
+```typescript
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/server";
+import { LoginForm } from "@/features/auth/components/login-form";
+```
+
+### Feature Export Pattern
+```typescript
+// Example from src/features/favorites/index.ts
+export { useFavoritesStore } from "./store/favoritesStore";
+export { FavoriteButton } from "./components/favorite-button";
+export { FavoritesPage } from "./components/favorites-page";
+export type { FavoriteCar, FavoritesState } from "./types";
+```
+
+## Component Examples
+
+### Server Component Pattern
+```typescript
+// Example: src/app/cars/page.tsx
+import { CarListing } from "@/features/public-listings/components/car-listing";
+import { getAllListings } from "@/features/public-listings/actions";
+import { getUser } from "@/app/actions";
+
+export default async function CarsPage() {
+  const [cars, user] = await Promise.all([
+    getAllListings(),
+    getUser()
+  ]);
+
+  return <CarListing cars={cars} user={user} />;
+}
+```
+
+### Client Component Pattern
+```typescript
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+export function LoginForm() {
+  // Component implementation
+}
+```
+
+## Best Practices Summary
+
+1. **Always use TypeScript** with proper type definitions
+2. **Follow features-based architecture** for scalability
+3. **Use Server Components by default**, Client Components when needed
+4. **Implement proper error handling** and loading states
+5. **Use Zod for all validation** schemas
+6. **Follow naming conventions** consistently
+7. **Optimize for performance** with proper caching and code splitting
+8. **Maintain security** with proper validation and auth checks
+9. **Write clean, readable code** with minimal complexity
+10. **Test critical functionality** with appropriate test coverage
+
+## File Structure Reference
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Auth route group  
+│   ├── dashboard/         # Dashboard pages
+│   ├── cars/              # Car listing pages
+│   ├── actions.ts         # Global server actions
+│   └── globals.css        # Global styles
+├── components/            # Shared components
+│   ├── ui/               # Shadcn/ui components
+│   ├── layout/           # Layout components
+│   └── modal/            # Modal components
+├── features/             # Feature-based organization
+│   ├── auth/             # Authentication feature
+│   │   ├── actions/      # Auth server actions
+│   │   ├── components/   # Auth components
+│   │   ├── validations/  # Zod schemas
+│   │   └── index.ts      # Feature exports
+│   ├── favorites/        # Favorites feature
+│   └── listings/         # Listings feature
+├── lib/                  # Shared utilities
+├── types/                # Global TypeScript types
+├── utils/                # Utility functions
+│   └── supabase/         # Supabase configuration
+└── constants/            # Application constants
+```
+
+Follow these rules consistently to maintain code quality, scalability, and team productivity.

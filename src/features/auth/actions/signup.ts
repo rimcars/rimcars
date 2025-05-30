@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import type { RegisterFormValues } from "../validations/register-schema";
 
@@ -21,6 +20,26 @@ export async function isUserExist(email: string) {
   return null;
 }
 
+/**
+ * Constructs the email verification redirect URL with proper fallbacks
+ */
+function getEmailVerificationRedirectUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const verifyRedirect = process.env.NEXT_PUBLIC_VERIFY_EMAIL_REDIRECT;
+
+  if (!siteUrl) {
+    console.warn("NEXT_PUBLIC_SITE_URL not set, using localhost");
+  }
+
+  const baseUrl = siteUrl || "http://localhost:3000";
+  const redirectPath = verifyRedirect || "auth/callback";
+
+  // Clean up the redirect path (remove leading slash if present)
+  const cleanPath = redirectPath.replace(/^\//, "");
+
+  return `${baseUrl}/${cleanPath}?type=email_verification`;
+}
+
 export async function signupUser(
   values: RegisterFormValues,
   isSeller: boolean
@@ -28,6 +47,13 @@ export async function signupUser(
   const supabase = await createClient();
 
   try {
+    // Construct the email redirect URL with proper fallbacks
+    const emailRedirectTo = getEmailVerificationRedirectUrl();
+
+    console.log(
+      `Signup: Creating user ${values.email} with redirect: ${emailRedirectTo}`
+    );
+
     // First sign up the user in auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: values.email,
@@ -37,24 +63,39 @@ export async function signupUser(
           full_name: values.name,
           role: isSeller ? "seller" : "buyer",
         },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/${(
-          process.env.NEXT_PUBLIC_VERIFY_EMAIL_REDIRECT || "auth/callback"
-        ).replace(/^\//, "")}?type=email_verification`,
+        emailRedirectTo,
       },
     });
 
     if (authError) {
-      console.log(authError);
+      console.error("Signup error:", authError);
+
+      // Handle specific signup errors
+      if (authError.message.includes("already registered")) {
+        return { error: "هذا البريد الإلكتروني مسجل بالفعل" };
+      } else if (authError.message.includes("password")) {
+        return { error: "كلمة المرور ضعيفة جداً" };
+      } else if (authError.message.includes("email")) {
+        return { error: "عنوان البريد الإلكتروني غير صالح" };
+      }
+
       return { error: authError.message };
     }
 
     if (!authData?.user?.id) {
-      return { error: "Failed to create user" };
+      return { error: "فشل في إنشاء المستخدم" };
     }
 
+    console.log(`Signup successful for user: ${authData.user.email}`);
     revalidatePath("/", "layout");
+
+    return {
+      success: true,
+      message: "تم إرسال رابط التحقق إلى بريدك الإلكتروني",
+      userId: authData.user.id,
+    };
   } catch (error) {
-    console.log(error);
-    return { error: "Failed to create user" };
+    console.error("Unexpected signup error:", error);
+    return { error: "فشل في إنشاء المستخدم" };
   }
 }

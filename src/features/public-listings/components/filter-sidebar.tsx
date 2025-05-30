@@ -150,7 +150,7 @@ export function FilterSidebar({ onFilterChange, allCars }: FilterSidebarProps) {
         <Button
           variant="outline"
           size="sm"
-          className="w-full bg-[#0082d6] text-white rounded-full hover:bg-[#005fa3] border-none shadow-none"
+          className="w-full"
           onClick={resetFilters}
         >
           إعادة ضبط الفلاتر
@@ -191,32 +191,14 @@ export function FilterSidebar({ onFilterChange, allCars }: FilterSidebarProps) {
                 step={1000}
                 value={priceRange}
                 onValueChange={setPriceRange}
-                className="
-                  h-3
-                  [&_[data-slot=track]]:bg-[#e6f0fa]
-                  [&_[data-slot=track]]:h-1
-                  [&_[data-slot=track]]:rounded-full
-                  [&_[data-slot=range]]:bg-[#0057b8]
-                  [&_[data-slot=range]]:h-1
-                  [&_[data-slot=range]]:rounded-full
-                  [&_[data-slot=thumb]]:w-5
-                  [&_[data-slot=thumb]]:h-5
-                  [&_[data-slot=thumb]]:bg-[#0057b8]
-                  [&_[data-slot=thumb]]:border-2
-                  [&_[data-slot=thumb]]:border-white
-                  [&_[data-slot=thumb]]:shadow
-                  [&_[data-slot=thumb]]:rounded-full
-                  [&_[data-slot=thumb]]:focus:outline-none
-                  [&_[data-slot=thumb]]:focus:ring-2
-                  [&_[data-slot=thumb]]:focus:ring-[#0057b8]
-                "
+                className="w-full"
               />
               <div className="flex items-center justify-between">
                 <span className="text-sm">
-                  {priceRange[0].toLocaleString()} ر.س
+                  {priceRange[0].toLocaleString()} MRU
                 </span>
                 <span className="text-sm">
-                  {priceRange[1].toLocaleString()} ر.س
+                  {priceRange[1].toLocaleString()} MRU
                 </span>
               </div>
             </div>

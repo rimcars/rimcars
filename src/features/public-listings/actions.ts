@@ -1,15 +1,15 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { Listing } from "../listings/types";
+import { createPublicClient } from "@/utils/supabase/server";
 
 /**
  * Fetches all public car listings
+ * Uses public client for static generation compatibility
  * @returns Object with data (listings array) or error
  */
 export async function getAllListings() {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
 
     const { data: listings, error } = await supabase
       .from("listings")
@@ -27,12 +27,13 @@ export async function getAllListings() {
 
 /**
  * Fetches a single car listing by ID
+ * Uses public client for static generation compatibility
  * @param id The listing ID
  * @returns Object with data (listing object) or error
  */
 export async function getPublicListingById(id: string) {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
 
     const { data: listing, error } = await supabase
       .from("listings")

@@ -4,90 +4,158 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Gauge, Fuel, Milestone, Cog, Heart } from "lucide-react";
+import {
+  Gauge,
+  Fuel,
+  Milestone,
+  Cog,
+  Eye,
+  Phone,
+  MapPin,
+  Calendar,
+  ArrowLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { UiCar } from "../types";
+import { FavoriteButton } from "@/features/favorites";
 
 interface CarCardProps {
   car: UiCar;
-  isFavorite: boolean;
-  onToggleFavorite: (carId: string) => void;
 }
 
-export function CarCard({ car, isFavorite, onToggleFavorite }: CarCardProps) {
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Heart button clicked in CarCard for car:", car.id);
-    console.log("Current favorite status:", isFavorite);
-    onToggleFavorite(car.id);
-  };
+export function CarCard({ car }: CarCardProps) {
+  const isNew = car.condition === "جديد";
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg bg-background">
-      <div className="relative h-48 w-full overflow-hidden">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-background border shadow-sm">
+      {/* Image Container */}
+      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-muted/20 to-muted/40">
         <Image
           src={car.image || "/placeholder.svg"}
           alt={car.name}
           fill
-          className="object-cover transition-transform hover:scale-105"
+          className="object-cover transition-all duration-300 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        {car.year && (
-          <Badge className="absolute top-2 right-2 bg-primary">
-            {car.year}
-          </Badge>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 left-2 bg-white/80 hover:bg-white/90 text-primary rounded-full"
-          onClick={handleFavoriteClick}
-        >
-          <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary" : ""}`} />
-          <span className="sr-only">Add to favorites</span>
-        </Button>
-      </div>
-      <CardContent className="p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-semibold text-lg line-clamp-1">{car.name}</h3>
-          <Badge variant="outline">{car.brand}</Badge>
-        </div>
-        <div className="text-2xl font-bold mb-4">
-          {car.price.toLocaleString()} MRU
+
+        {/* Subtle Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Top Row: Year Badge + Condition + Favorite */}
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            {car.year && (
+              <Badge
+                variant={isNew ? "default" : "secondary"}
+                className="bg-white/90 text-foreground backdrop-blur-sm shadow-sm"
+              >
+                {car.year}
+              </Badge>
+            )}
+            {isNew && (
+              <Badge className="bg-green-500 text-white shadow-sm">جديد</Badge>
+            )}
+          </div>
+          <FavoriteButton carId={car.id} variant="floating" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-2 text-sm">
-            <Gauge className="h-4 w-4 text-muted-foreground" />
+        {/* Quick View on Hover */}
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
+          <Link href={`/cars/${car.id}`}>
+            <Button
+              size="sm"
+              className="bg-white/90 text-foreground hover:bg-white shadow-sm"
+            >
+              <Eye className="h-4 w-4 me-1" />
+              نظرة سريعة
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <CardContent className="p-4 space-y-3">
+        {/* Header: Brand + Name + Price */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs font-medium">
+              {car.brand}
+            </Badge>
+            {car.model && (
+              <span className="text-xs text-muted-foreground">{car.model}</span>
+            )}
+          </div>
+
+          <div className="flex items-start justify-between">
+            <h3 className="font-bold text-lg leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+              {car.name}
+            </h3>
+            <div className="text-xl font-bold text-primary">
+              {car.price.toLocaleString()}
+              <span className="text-xs font-normal text-muted-foreground ml-1">
+                MRU
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Compact Specifications */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
+          <div className="flex items-center gap-1">
+            <Gauge className="h-3 w-3" />
             <span>
               {car.mileage && car.mileage > 0
                 ? `${car.mileage.toLocaleString()} كم`
                 : "جديد"}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Milestone className="h-4 w-4 text-muted-foreground" />
-            <span>{car.year ? car.year : "غير محدد"}</span>
+          <div className="flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            <span>{car.year || "غير محدد"}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Fuel className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Fuel className="h-3 w-3" />
             <span>{car.fuelType}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Cog className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-1">
+            <Cog className="h-3 w-3" />
             <span>{car.transmission}</span>
           </div>
         </div>
+
+        {/* Location (if available) */}
+        {car.location && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" />
+            <span>{car.location}</span>
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex gap-2">
-        <Link href={`/cars/${car.id}`} className="w-full">
-          <Button className="w-full" variant="default">
-            عرض التفاصيل
+
+      <CardFooter className="p-4 pt-0">
+        {/* Essential CTAs Only */}
+        <div className="grid grid-cols-2 gap-3 w-full">
+          <Link href={`/cars/${car.id}`} className="flex-1">
+            <Button
+              className="w-full group/btn transition-all"
+              variant="default"
+            >
+              <span>عرض التفاصيل</span>
+              <ArrowLeft className="h-4 w-4 ms-2 transition-transform group-hover/btn:-translate-x-1" />
+            </Button>
+          </Link>
+
+          <Button
+            variant="outline"
+            className="flex-1 transition-all hover:border-primary hover:text-primary"
+            onClick={() =>
+              car.sellerPhone && window.open(`tel:${car.sellerPhone}`, "_self")
+            }
+            disabled={!car.sellerPhone}
+          >
+            <Phone className="h-4 w-4 me-2" />
+            {car.sellerPhone ? "اتصال" : "غير متوفر"}
           </Button>
-        </Link>
-        <Button className="w-full" variant="outline">
-          طلب تجربة
-        </Button>
+        </div>
       </CardFooter>
     </Card>
   );

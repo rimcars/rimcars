@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -9,42 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      favorites: {
-        Row: {
-          car_id: string | null
-          created_at: string | null
-          id: string
-          user_id: string | null
-        }
-        Insert: {
-          car_id?: string | null
-          created_at?: string | null
-          id?: string
-          user_id?: string | null
-        }
-        Update: {
-          car_id?: string | null
-          created_at?: string | null
-          id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "favorites_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       listings: {
         Row: {
           car_name: string

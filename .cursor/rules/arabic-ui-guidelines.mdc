@@ -1,0 +1,85 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Arabic Language and RTL UI Guidelines
+
+## RTL (Right-to-Left) Support
+
+### Layout Direction
+- Always support RTL layout for Arabic content
+- Use `dir="rtl"` attribute on HTML elements when needed
+- Implement proper margin/padding for RTL layouts
+- Use logical CSS properties when possible (`margin-inline-start` instead of `margin-left`)
+
+### Tailwind CSS RTL Classes
+```css
+/* Use RTL-aware spacing */
+.me-4 /* margin-inline-end: 1rem */
+.ms-4 /* margin-inline-start: 1rem */
+.pe-4 /* padding-inline-end: 1rem */
+.ps-4 /* padding-inline-start: 1rem */
+```
+
+### Typography Guidelines
+- Use proper Arabic fonts: Tajawal, Cairo, Almarai
+- Reference: [tailwind.config.ts](mdc:tailwind.config.ts) for font configuration
+- Ensure proper line-height for Arabic text (1.6-1.8)
+- Use appropriate letter-spacing for Arabic fonts
+
+### Form Validation Messages
+- Always provide Arabic error messages in validation schemas
+- Use clear, concise Arabic text for user feedback
+- Example pattern from [src/features/auth/validations/login-schema.ts](mdc:src/features/auth/validations/login-schema.ts):
+
+```typescript
+export const createLoginSchema = z.object({
+  email: z.string().email({
+    message: "البريد الإلكتروني غير صحيح",
+  }),
+  password: z.string().min(6, {
+    message: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+  }),
+});
+```
+
+### Icon and Navigation Direction
+- Flip directional icons for RTL (arrows, chevrons)
+- Adjust navigation flow for right-to-left reading
+- Use proper icon positioning in forms and buttons
+
+### Content Flow
+- Organize content flow from right to left
+- Align text appropriately for Arabic reading patterns
+- Use proper card layouts and grid systems for RTL
+
+## Arabic Content Guidelines
+
+### Text Content
+- Use formal Arabic (فصحى) for official content
+- Keep informal Arabic for user-generated content
+- Maintain consistency in terminology across the application
+
+### Number Formatting
+- Use Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩) when appropriate
+- Consider context for Western vs Arabic numerals
+- Format currency properly for Arabic locales
+
+### Date and Time
+- Format dates according to Arabic conventions
+- Use Arabic month names when appropriate
+- Consider Islamic calendar alongside Gregorian
+
+## Best Practices
+
+1. **Test RTL layouts** thoroughly across all components
+2. **Use semantic HTML** that works well with screen readers in Arabic
+3. **Implement proper fallbacks** for non-Arabic browsers
+4. **Consider performance** when loading Arabic fonts
+5. **Validate Arabic input** properly in forms
+6. **Use consistent Arabic terminology** throughout the app
+7. **Test with real Arabic content** of varying lengths
+8. **Ensure proper mobile experience** for Arabic users
+
+Follow these guidelines to ensure excellent Arabic language support and RTL user experience.
